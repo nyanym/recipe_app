@@ -1,3 +1,4 @@
+/*
 .counter {
   font-size: 16px;
   padding: 5px 10px;
@@ -181,4 +182,84 @@
     right: 0;
     border-right-color: var(--border);
   }
+}
+
+*/
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+/*Sidebar .css*/
+.app-container {
+  display: flex;
+  width: 100vw;
+  min-height: 100vh;
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.sidebar {
+  background-color: #1e293b;
+  color: #fff;
+  overflow: hidden; /* Keeps content hidden when collapsed */
+  transition: width 0.3s ease, padding 0.3s ease; /* Smooth toggle animation */
+  box-sizing: border-box;
+  white-space: nowrap; /* Prevents text wrapping while closing */
+
+  /*collapsed state*/
+  width: 60px;
+  padding: 1rem 0.5rem;
+}
+
+/* open state */
+.sidebar.open {
+  width: 250px;
+  padding: 1rem;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Nav items styling */
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.nav-item:hover {
+  background-color: #334155;
+}
+
+/* Hide labels when sidebar is collapsed */
+.sidebar:not(.open) .label {
+  display: none;
+}
+
+.main-content {
+  flex: 1;
+  padding: 2rem;
+  background-color: #f8fafc;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  cursor: pointer;
+  margin-bottom: 1rem;
 }

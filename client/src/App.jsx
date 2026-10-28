@@ -15,8 +15,49 @@ function App() {
       .catch((err) => console.error(err));
   }, []);
 
+  // for sidebar
+  const [isOpen, setIsOpen] = useState(true);
+
+  const toggleSidebar = () => {
+    setIsOpen((prev) => !prev);
+  };
+
   return (
     <>
+      <div className="app-container">
+        {/* Conditionally apply the .open class based on state */}
+        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+          <div className="sidebar-content">
+            <div className="nav-item"></div>
+              <button onClick={toggleSidebar} className="toggle-btn">
+                {/* opening and closing sidebar */}
+                {isOpen ? '✕ Close Sidebar' : '>'}
+              </button>
+            <div className="nav-item">
+              <span className="icon">📊</span>
+              <span className="label">Dashboard</span>
+            </div>
+            <div className="nav-item">
+              <span className="icon">⚙️</span>
+              <span className="label">Settings</span>
+            </div>
+            <div className="nav-item">
+              <span className="icon">👤</span>
+              <span className="label">Profile</span>
+            </div>
+          </div>
+        </aside>
+
+        <main className="main-content">
+          <h1>Main Content</h1>
+          <p>This area expands to fill the space when the sidebar closes.</p>
+          <div style={{ textAlign: 'center', marginTop: '50px' }}>
+            <h1>React + Node.js Application</h1>
+            <p>{message ? message : 'Connecting to Node server...'}</p>
+          </div>
+        </main>
+      </div>
+
       {/* <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
@@ -123,11 +164,6 @@ function App() {
 
       <div className="ticks"></div>
       <section id="spacer"></section> */}
-
-		<div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>React + Node.js Application</h1>
-      <p>{message ? message : 'Connecting to Node server...'}</p>
-		</div>
     </>
   )
 }
