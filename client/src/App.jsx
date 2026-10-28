@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
+// import heroImg from './assets/hero.png'
+// import reactLogo from './assets/react.svg'
+// import viteLogo from './assets/vite.svg'
 import './App.css'
+
+import SearchBar from './SearchBar';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -21,6 +23,11 @@ function App() {
 
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
+  };
+
+  // SearchBar
+  const handleSearch = (searchTerm) => {
+    console.log('Searching for:', searchTerm);
   };
 
   return (
@@ -59,6 +66,9 @@ function App() {
         </aside>
 
         <main className="main-content">
+          <div style={{ padding: '.5rem' }}>
+            <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+          </div>
           <h1>Main Content</h1>
           <p>This area expands to fill the space when the sidebar closes.</p>
           <div style={{ textAlign: 'center', marginTop: '50px' }}>
