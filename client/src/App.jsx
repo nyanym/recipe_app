@@ -69,11 +69,9 @@ function App() {
           <div style={{ padding: '.5rem' }}>
             <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
           </div>
-          <h1>Main Content</h1>
-          <p>This area expands to fill the space when the sidebar closes.</p>
-          <div style={{ textAlign: 'center', marginTop: '50px' }}>
-            <h1>React + Node.js Application</h1>
-            <p>{message ? message : 'Connecting to Node server...'}</p>
+          <div className="main-card">
+            <h2>Card Title</h2>
+            <p>This card fills the rest of the available screen space.</p>
           </div>
         </main>
       </div>

@@ -10,6 +10,28 @@ html, body, #root {
   box-sizing: inherit;
 }
 
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  background-color: #f8fafc;
+  box-sizing: border-box;
+}
+
+.main-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
 /*Sidebar .css*/
 .app-container {
   display: flex;
@@ -113,12 +135,6 @@ html, body, #root {
 /* Hide labels when sidebar is collapsed */
 .sidebar:not(.open) .label {
   display: none;
-}
-
-.main-content {
-  flex: 1;
-  padding: 2rem;
-  background-color: #f8fafc;
 }
 
 .toggle-btn {
