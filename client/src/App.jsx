@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Routes, Route, useNavigate } from 'react-router-dom';
 // import heroImg from './assets/hero.png'
 // import reactLogo from './assets/react.svg'
 // import viteLogo from './assets/vite.svg'
@@ -7,9 +8,22 @@ import './App.css'
 import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
 
+function CreatePostPage() {
+  const navigate = useNavigate();
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h2>Create a New Post</h2>
+      <button onClick={() => navigate('/')}>Back to Dashboard</button>
+      {/* Add your post creation form here */}
+    </div>
+  );
+}
+
 function App() {
   const [count, setCount] = useState(0)
   const [message, setMessage] = useState('')
+  const navigate = useNavigate();
+
   
   // for message
   useEffect(() => {
@@ -33,6 +47,7 @@ function App() {
 
   // Create post
   const handleCreatePost = () => {
+    navigate('/create-post');
     console.log('Post button clicked! Open modal or redirect to post creation page.');
   };
 
@@ -55,7 +70,7 @@ function App() {
             </div>
 
             {/* side buttons */}
-            <div className="nav-item">
+            <div className="nav-item" onClick={() => navigate('/')}>
               <span className="icon">📊</span>
               {isOpen && <span className="label">Dashboard</span>}
             </div>
@@ -77,29 +92,43 @@ function App() {
         </aside>
 
         <main className="main-content">
-          <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-            <button className="profile-btn">Profile</button>
-          </div>
+           <Routes>
+             <Route
+               path="/"
+               element={
+                 <>
 
-            <h2>Card Title</h2>
-            <div className="feed-card">
 
-              <div className="column-card">
-                <h3>Card 1</h3>
-                <p>Content for the first column.</p>
-              </div>
+                  <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+                    <button className="profile-btn">Profile</button>
+                  </div>
 
-              <div className="column-card">
-                <h3>Card 2</h3>
-                <p>Content for the second column.</p>
-              </div>
+                  <h2>Card Title</h2>
+                  <div className="feed-card">
 
-              <div className="column-card">
-                <h3>Card 3</h3>
-                <p>Content for the third column.</p>
-              </div>
-            </div>
+                    <div className="column-card">
+                      <h3>Card 1</h3>
+                      <p>Content for the first column.</p>
+                    </div>
+
+                    <div className="column-card">
+                      <h3>Card 2</h3>
+                      <p>Content for the second column.</p>
+                    </div>
+
+                    <div className="column-card">
+                      <h3>Card 3</h3>
+                      <p>Content for the third column.</p>
+                    </div>
+                  </div>
+
+               </>
+             }
+           />
+           <Route path="/create-post" element={<CreatePostPage />} />
+         </Routes>
+
 
         </main>
       </div>
