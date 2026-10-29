@@ -66,9 +66,11 @@ function App() {
         </aside>
 
         <main className="main-content">
-          <div style={{ padding: '.5rem' }}>
+          <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+            <button className="profile-btn">Profile</button>
           </div>
+
           <div className="main-card">
             <h2>Card Title</h2>
             <p>This card fills the rest of the available screen space.</p>
