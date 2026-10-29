@@ -7,17 +7,7 @@ import './App.css'
 
 import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
-
-function CreatePostPage() {
-  const navigate = useNavigate();
-  return (
-    <div style={{ padding: '2rem' }}>
-      <h2>Create a New Post</h2>
-      <button onClick={() => navigate('/')}>Back to Dashboard</button>
-      {/* Add your post creation form here */}
-    </div>
-  );
-}
+import CreatePostPage from './CreatePostPage';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -128,7 +118,6 @@ function App() {
            />
            <Route path="/create-post" element={<CreatePostPage />} />
          </Routes>
-
 
         </main>
       </div>
