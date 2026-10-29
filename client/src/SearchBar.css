@@ -4,6 +4,8 @@
   gap: 8px;
   width: 100%;
   max-width: 1250px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .search-input-wrapper {
