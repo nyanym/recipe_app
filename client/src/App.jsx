@@ -66,8 +66,9 @@ function App() {
         </aside>
 
         <main className="main-content">
-          <div style={{ padding: '.5rem' }}>
+          <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+            <button className="profile-btn">Profile</button>
           </div>
 
             <h2>Card Title</h2>
@@ -87,7 +88,6 @@ function App() {
                 <h3>Card 3</h3>
                 <p>Content for the third column.</p>
               </div>
-              
             </div>
 
         </main>
