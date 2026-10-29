@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import './App.css'
 
 import SearchBar from './SearchBar';
+import PostButton from './Post-btn';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -30,6 +31,11 @@ function App() {
     console.log('Searching for:', searchTerm);
   };
 
+  // Create post
+  const handleCreatePost = () => {
+    console.log('Post button clicked! Open modal or redirect to post creation page.');
+  };
+
   return (
     <>
       <div className="app-container">
@@ -51,15 +57,20 @@ function App() {
             {/* side buttons */}
             <div className="nav-item">
               <span className="icon">📊</span>
-              <span className="label">Dashboard</span>
+              {isOpen && <span className="label">Dashboard</span>}
             </div>
+            
+            <div className="nav-item">
+              <PostButton onClick={handleCreatePost} isCollapsed={!isOpen}/>
+            </div>
+
             <div className="nav-item">
               <span className="icon">⚙️</span>
-              <span className="label">Settings</span>
+              {isOpen && <span className="label">Settings</span>}
             </div>
             <div className="nav-item">
               <span className="icon">👤</span>
-              <span className="label">Profile</span>
+              {isOpen && <span className="label">Profile</span>}
             </div>
 
           </div>

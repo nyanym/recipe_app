@@ -60,7 +60,7 @@ html, body, #root {
   white-space: nowrap; /* Prevents text wrapping while closing */
 
   /*collapsed state*/
-  width: 60px;
+  width: 80px;
   padding: 1rem 0.5rem;
 }
 
@@ -87,10 +87,19 @@ html, body, #root {
 }
 
 .sidebar:not(.open) .sidebar-header {
-  justify-content: center;
+  /* justify-content: center;
   flex-direction: column;
+  align-items: center;
   padding: 1rem 0;
-  gap: 10px;
+  gap: 10px; */
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 0;
+  gap: 12px;
+  width: 100%;
 }
 
 /* website display rules */
@@ -135,6 +144,21 @@ html, body, #root {
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
+}
+
+.nav-item .icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  width: 24px;
+  height: 24px;
+}
+
+.sidebar:not(.open) .nav-item {
+  justify-content: center;
+  padding: 8px 0;
+  width: 100%;
 }
 
 .nav-item:hover {
