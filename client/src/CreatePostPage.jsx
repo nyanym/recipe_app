@@ -54,18 +54,18 @@ function CreatePostPage() {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="What's on your mind?"
+            placeholder="Tittttllleeee"
             required
             className="form-input"
           />
         </div>
 
         <div className="form-group">
-          <label className="form-label">Content</label>
+          <label className="form-label">Recipe</label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            placeholder="Share details, recipe notes, or steps..."
+            placeholder="Give me your recipes"
             rows="8"
             required
             className="form-textarea"
@@ -74,7 +74,7 @@ function CreatePostPage() {
 
         <div className="form-actions">
           <button type="submit" disabled={isSubmitting} className="profile-btn">
-            {isSubmitting ? 'Publishing...' : 'Publish Post'}
+            {isSubmitting ? 'Publishing...' : 'Publish Recipe'}
           </button>
         </div>
       </form>
