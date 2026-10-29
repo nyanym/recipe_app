@@ -69,10 +69,27 @@ function App() {
           <div style={{ padding: '.5rem' }}>
             <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
           </div>
-          <div className="main-card">
+
             <h2>Card Title</h2>
-            <p>This card fills the rest of the available screen space.</p>
-          </div>
+            <div className="feed-card">
+
+              <div className="column-card">
+                <h3>Card 1</h3>
+                <p>Content for the first column.</p>
+              </div>
+
+              <div className="column-card">
+                <h3>Card 2</h3>
+                <p>Content for the second column.</p>
+              </div>
+
+              <div className="column-card">
+                <h3>Card 3</h3>
+                <p>Content for the third column.</p>
+              </div>
+              
+            </div>
+
         </main>
       </div>
     </>
