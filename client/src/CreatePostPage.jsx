@@ -2,6 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreatePostPage.css';
 
+const MAX_TITLE_WORDS = 20; //total title word count
+
+// split by spaces
+const countWords = (text) => {
+  const trimmed = text.trim();
+  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+};
+
 function CreatePostPage() {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
@@ -9,10 +17,26 @@ function CreatePostPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  const titleWordCount = countWords(title);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError('');
+
+    if (titleWordCount === 0) {
+      setError('Title must have at least 1 word.');
+      return;
+    }
+    if (titleWordCount >= MAX_TITLE_WORDS) {
+      setError(`Title must be fewer than ${MAX_TITLE_WORDS} words.`);
+      return;
+    }
+    if (content.trim() === '') {
+      setError('Recipe content cannot be empty.');
+      return;
+    }
+
+    setIsSubmitting(true);
 
     try {
       const response = await fetch('http://localhost:5000/api/posts', {
@@ -20,7 +44,7 @@ function CreatePostPage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ title, content }),
+        body: JSON.stringify({ title: title.trim(), content: content.trim() }),
       });
 
       if (!response.ok) {
@@ -49,7 +73,9 @@ function CreatePostPage() {
 
       <form onSubmit={handleSubmit} className="create-post-form">
         <div className="form-group">
-          <label className="form-label">Post Title</label>
+          <label className="form-label">
+            Post Title ({titleWordCount}/{MAX_TITLE_WORDS - 1} words)
+          </label>
           <input
             type="text"
             value={title}
