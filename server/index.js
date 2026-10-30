@@ -2,7 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
-const mongoose = require('mongoose');
+const postRoutes = require('./routes/posts');
 
 const app = express();
 
@@ -12,11 +12,6 @@ connectDB();
 // middleware
 app.use(cors());
 app.use(express.json());
-
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB Connected successfully!'))
-  .catch((err) => console.error('MongoDB Connection Error:', err));
 
 // Basic test route
 app.get('/api/health', (req, res) => {
@@ -28,6 +23,8 @@ app.get('/api/message', (req, res) => {
   res.json({ message: 'Hello from Node.js backend!' });
 });
 
+// Posts API (create + list)
+app.use('/api/posts', postRoutes);
 
 // // restricting what frontend can talk to backend
 // app.use(cors({
