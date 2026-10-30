@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './CreatePostPage.css';
 
-const MAX_TITLE_WORDS = 20; //total title word count
+const MAX_TITLE_WORDS = 21; //total title word count
 
 // split by spaces
 const countWords = (text) => {
