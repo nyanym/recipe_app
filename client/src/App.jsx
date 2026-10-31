@@ -8,6 +8,14 @@ import './App.css'
 import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
 import CreatePostPage from './CreatePostPage';
+import RecipeCard from './RecipeCard';
+
+// placeholder data until the feed fetches posts (posts have no image/author/rating yet)
+const sampleRecipes = [
+  { id: 1, title: 'Lemon Garlic Pasta', author: 'Alex', imageUrl: null, rating: 4, likes: 10000 },
+  { id: 2, title: 'Spicy Tofu Stir-Fry', author: 'Sam', imageUrl: null, rating: 5, likes: 2400 },
+  { id: 3, title: 'Banana Bread', author: 'Jordan', imageUrl: null, rating: 3, likes: 870 },
+];
 
 function App() {
   const [count, setCount] = useState(0)
@@ -96,21 +104,9 @@ function App() {
 
                   <h2>Card Title</h2>
                   <div className="feed-card">
-
-                    <div className="column-card">
-                      <h3>Card 1</h3>
-                      <p>Content for the first column.</p>
-                    </div>
-
-                    <div className="column-card">
-                      <h3>Card 2</h3>
-                      <p>Content for the second column.</p>
-                    </div>
-
-                    <div className="column-card">
-                      <h3>Card 3</h3>
-                      <p>Content for the third column.</p>
-                    </div>
+                    {sampleRecipes.map((recipe) => (
+                      <RecipeCard key={recipe.id} {...recipe} />
+                    ))}
                   </div>
 
                </>
