@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
 const postRoutes = require('./routes/posts');
+const authRoutes = require ('./routes/auth');
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.get('/api/message', (req, res) => {
 
 // Posts API (create + list)
 app.use('/api/posts', postRoutes);
+
+//Authentication API
+app.use('/api/auth', authRoutes);
 
 // // restricting what frontend can talk to backend
 // app.use(cors({
