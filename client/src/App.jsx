@@ -8,6 +8,8 @@ import './App.css'
 import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
 import CreatePostPage from './CreatePostPage';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -117,12 +119,14 @@ function App() {
              }
            />
            <Route path="/create-post" element={<CreatePostPage />} />
+           <Route path="/signup" element={<Signup />} />
+           <Route path="/login" element={<Login />} />
          </Routes>
 
         </main>
       </div>
     </>
-  )
+  );
 }
 
 export default App
