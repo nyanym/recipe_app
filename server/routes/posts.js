@@ -29,4 +29,26 @@ router.get('/', async (req, res) => {
   }
 });
 
+// delete a post by ID
+router.delete('/:id', async (req, res) => {
+  try {
+    const post = await Post.findByIdAndDelete(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ error: 'Post not found' });
+    }
+
+    res.json({ message: 'Post deleted successfully', id: req.params.id });
+  } catch (err) {
+    console.error('Error deleting post:', err);
+    
+    // Handle invalid MongoDB ObjectId format (CastError)
+    if (err.name === 'CastError') {
+      return res.status(400).json({ error: 'Invalid post ID' });
+    }
+
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 module.exports = router;
