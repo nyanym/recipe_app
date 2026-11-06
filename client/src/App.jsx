@@ -23,17 +23,23 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-  fetch('http://localhost:5000/api/posts')
-    .then((res) => res.json())
-    .then((data) => {
-      setPosts(data);
-      setLoading(false);
-    })
-    .catch((err) => {
-      console.error('Error fetching posts:', err);
-      setLoading(false);
-    });
+    fetchPosts();
   }, []);
+
+  // grab posts
+  const fetchPosts = () => {
+    setLoading(true);
+    fetch('http://localhost:5000/api/posts')
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching posts:', err);
+        setLoading(false);
+      });
+  };
 
   // for sidebar
   const [isOpen, setIsOpen] = useState(true);
@@ -122,8 +128,11 @@ function App() {
                </>
              }
            />
-           <Route path="/create-post" element={<CreatePostPage />} />
-         </Routes>
+           <Route 
+            path="/create-post" 
+            element={<CreatePostPage onPostCreated={fetchPosts} />} 
+          />
+        </Routes>
 
         </main>
       </div>
