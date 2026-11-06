@@ -19,16 +19,29 @@ router.post('/', async (req, res) => {
 });
 
 
-// list all posts, newest first
-router.get('/', async (req, res) => {
-  try {
-    const posts = await Post.find().sort({ createdAt: -1 });
-    res.json(posts);
-  } catch (err) {
-    console.error('Error fetching posts:', err);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
+  // list all posts, or filter by search query (newest first)
+  router.get('/', async (req, res) => {
+    try {
+      const { search } = req.query;
+      let query = {};
+
+      if (search) {
+        // case-insensitive regex matching title or content
+        query = {
+          $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { content: { $regex: search, $options: 'i' } }
+          ]
+        };
+      }
+
+      const posts = await Post.find(query).sort({ createdAt: -1 });
+      res.json(posts);
+    } catch (err) {
+      console.error('Error fetching posts:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  });
 
 // delete post by ID
 router.delete('/:id', async (req, res) => {

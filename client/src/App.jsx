@@ -63,8 +63,25 @@ function App() {
   };
 
   // SearchBar
-  const handleSearch = (searchTerm) => {
-    console.log('Searching for:', searchTerm);
+  const handleSearch = async (searchTerm) => {
+    setLoading(true);
+      try {
+        // If input is empty, fetch all posts
+        if (!searchTerm.trim()) {
+          fetchPosts();
+          return;
+        }
+
+        // Send query parameter to server
+        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
+        const data = await res.json();
+        
+        setPosts(data);
+      } catch (err) {
+        console.error('Error searching posts:', err);
+      } finally {
+        setLoading(false);
+      }
   };
 
   // Create post
