@@ -3,7 +3,7 @@ import './RecipeCard.css';
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ title, author, imageUrl, rating, likes }) {
+function RecipeCard({ id, title, author, imageUrl, rating, likes, onDelete }) {
   const filledStars = Math.round(rating);
 
   return (
@@ -26,6 +26,10 @@ function RecipeCard({ title, author, imageUrl, rating, likes }) {
         </span>
         <span className="recipe-card-likes">👍 {formatCount(likes)}</span>
       </div>
+
+      <button onClick={() => onDelete(id)} className="delete-btn">
+        Delete
+      </button>
     </div>
   );
 }

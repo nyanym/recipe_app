@@ -38,6 +38,23 @@ function App() {
       });
   };
 
+  const handleDeletePost = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to delete: ${errorData.error}`);
+      }
+    } catch (err) {
+      console.error('Error deleting post:', err);
+    }
+  };
+
   // for sidebar
   const [isOpen, setIsOpen] = useState(true);
 
@@ -117,7 +134,13 @@ function App() {
                       <p>No recipes found. Create one!</p>
                     ) : (
                       posts.map((post) => (
-                        <RecipeCard key={post._id} title={post.title} content={post.content} />
+                        <RecipeCard 
+                          key={post._id} 
+                          id={post._id} 
+                          title={post.title} 
+                          content={post.content} 
+                          onDelete={handleDeletePost} 
+                        />
                       ))
                     )}
                   </div>
