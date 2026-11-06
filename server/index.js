@@ -4,6 +4,8 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const postRoutes = require('./routes/posts');
 const authRoutes = require ('./routes/auth');
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 
@@ -11,8 +13,31 @@ const app = express();
 connectDB();
 
 // middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  credentials: true
+}));
+
 app.use(express.json());
+
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        collectionName: 'sessions',
+        ttl: 14 * 24 * 60 * 60
+    }),
+
+    cookie: {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 14 * 24 * 60 * 60 * 1000
+    }
+}));
 
 // Basic test route
 app.get('/api/health', (req, res) => {
