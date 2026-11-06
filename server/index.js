@@ -5,7 +5,7 @@ const connectDB = require('./config/db');
 const postRoutes = require('./routes/posts');
 const authRoutes = require ('./routes/auth');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default;
 
 const app = express();
 
