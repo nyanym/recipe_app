@@ -55,6 +55,8 @@ router.delete('/:id', async (req, res) => {
     res.json({ message: 'Post deleted successfully', id: req.params.id });
   } catch (err) {
     console.error('Error deleting post:', err);
+
+    // invalid MongoDB ObjectId
     if (err.name === 'CastError') {
       return res.status(400).json({ error: 'Invalid post ID' });
     }

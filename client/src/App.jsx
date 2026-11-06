@@ -16,8 +16,9 @@ const sampleRecipes = [
 
 function App() {
   const navigate = useNavigate();
-  const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState([]);       // posts
+  const [loading, setLoading] = useState(true); // posts
+  const [isOpen, setIsOpen] = useState(true);   // sidebar
 
   useEffect(() => {
     fetchPosts();
@@ -55,9 +56,6 @@ function App() {
     }
   };
 
-  // for sidebar
-  const [isOpen, setIsOpen] = useState(true);
-
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
   };
@@ -66,13 +64,13 @@ function App() {
   const handleSearch = async (searchTerm) => {
     setLoading(true);
       try {
-        // If input is empty, fetch all posts
+        // if input is empty, all posts
         if (!searchTerm.trim()) {
           fetchPosts();
           return;
         }
 
-        // Send query parameter to server
+        // request posts from server
         const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
         const data = await res.json();
         
