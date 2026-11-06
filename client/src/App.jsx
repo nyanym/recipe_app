@@ -19,6 +19,21 @@ const sampleRecipes = [
 
 function App() {
   const navigate = useNavigate();
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+  fetch('http://localhost:5000/api/posts')
+    .then((res) => res.json())
+    .then((data) => {
+      setPosts(data);
+      setLoading(false);
+    })
+    .catch((err) => {
+      console.error('Error fetching posts:', err);
+      setLoading(false);
+    });
+  }, []);
 
   // for sidebar
   const [isOpen, setIsOpen] = useState(true);
@@ -93,9 +108,15 @@ function App() {
 
                   <h2>Card Title</h2>
                   <div className="feed-card">
-                    {sampleRecipes.map((recipe) => (
-                      <RecipeCard key={recipe.id} {...recipe} />
-                    ))}
+                    {loading ? (
+                      <p>Loading recipes...</p>
+                    ) : posts.length === 0 ? (
+                      <p>No recipes found. Create one!</p>
+                    ) : (
+                      posts.map((post) => (
+                        <RecipeCard key={post._id} title={post.title} content={post.content} />
+                      ))
+                    )}
                   </div>
 
                </>
