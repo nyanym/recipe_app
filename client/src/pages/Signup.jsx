@@ -2,11 +2,16 @@ import { useState } from 'react';
 import './Signup.css';
 
 function Signup(){
+    const navigate = useNavigate();
+    const { setUser } = useAuth();
+
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
 
     const handleSubmit = async (page) => {
         page.preventDefault();
+        setError('');
 
         //Password validation on front-end as well
         const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
@@ -16,7 +21,31 @@ function Signup(){
             return;
         }
 
-        console.log(username, password);
+        try {
+            const response = await fetch(
+                'http://localhost:5000/api/auth/signup',
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({ username, password }),
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Signup failed');
+            }
+
+            setUser(data.user);
+            navigate('/');
+        }
+        catch (err) {
+            setError(err.message);
+        }
     };
 
     return (
@@ -40,6 +69,8 @@ function Signup(){
             required
             />
 
+            {error && <p>{error}</p>}
+
             <p>
             Password must have at least 8 characters,
             a letter, a number, and a special character.
@@ -52,7 +83,7 @@ function Signup(){
 
         <p>
             Already have an account?
-            <a href="/login"> Login</a>
+            <Link to="/login"> Login</Link>
         </p>
         </div>
     );
