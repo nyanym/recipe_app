@@ -18,18 +18,7 @@ const sampleRecipes = [
 ];
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [message, setMessage] = useState('')
   const navigate = useNavigate();
-
-  
-  // for message
-  useEffect(() => {
-    fetch('http://localhost:5000/api/message')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => console.error(err));
-  }, []);
 
   // for sidebar
   const [isOpen, setIsOpen] = useState(true);
