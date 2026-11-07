@@ -41,11 +41,29 @@ export function AuthProvider({ children }) {
         checkAuth();
     }, []);
 
+    const logout = async () => {
+        const response = await fetch(
+        'http://localhost:5000/api/auth/logout',
+        {
+            method: 'POST',
+            credentials: 'include',
+            cache: 'no-store'
+        }
+        );
+
+        if (!response.ok) {
+        throw new Error('Logout failed');
+        }
+
+        setUser(null);
+    };
+
     return (
         <AuthContext.Provider value={{
             user,
             setUser,
-            loading
+            loading,
+            logout
         }}>
             {children}
         </AuthContext.Provider>

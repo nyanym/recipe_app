@@ -11,13 +11,25 @@ import CreatePostPage from './CreatePostPage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 
 function App() {
   const [count, setCount] = useState(0)
   const [message, setMessage] = useState('')
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
-  
+  // for logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      alert('Unable to log out. Please try again.');
+    }
+  };
+
   // for message
   useEffect(() => {
     fetch('http://localhost:5000/api/message')
@@ -80,50 +92,60 @@ function App() {
               <span className="icon">👤</span>
               {isOpen && <span className="label">Profile</span>}
             </div>
+            {user && (
+              <div>
+                <p>Logged in as: {user.username}</p>
+                <button onClick={handleLogout}>
+                  Log Out
+                </button>
+              </div>
+            )}
 
           </div>
         </aside>
 
         <main className="main-content">
            <Routes>
-             <Route
-               path="/"
-               element={
-                 <>
-
-
-                  <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-                    <button className="profile-btn">Profile</button>
-                  </div>
-
-                  <h2>Card Title</h2>
-                  <div className="feed-card">
-
-                    <div className="column-card">
-                      <h3>Card 1</h3>
-                      <p>Content for the first column.</p>
-                    </div>
-
-                    <div className="column-card">
-                      <h3>Card 2</h3>
-                      <p>Content for the second column.</p>
-                    </div>
-
-                    <div className="column-card">
-                      <h3>Card 3</h3>
-                      <p>Content for the third column.</p>
-                    </div>
-                  </div>
-
-                </>
-                }
-              />
            
            <Route path="/signup" element={<Signup />} />
            <Route path="/login" element={<Login />} />
 
            <Route element={<ProtectedRoute />}>
+           
+               <Route
+                path="/"
+                element={
+                  <>
+
+
+                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+                      <button className="profile-btn">Profile</button>
+                    </div>
+
+                    <h2>Card Title</h2>
+                    <div className="feed-card">
+
+                      <div className="column-card">
+                        <h3>Card 1</h3>
+                        <p>Content for the first column.</p>
+                      </div>
+
+                      <div className="column-card">
+                        <h3>Card 2</h3>
+                        <p>Content for the second column.</p>
+                      </div>
+
+                      <div className="column-card">
+                        <h3>Card 3</h3>
+                        <p>Content for the third column.</p>
+                      </div>
+                    </div>
+
+                  </>
+                  }
+                />
+
                 <Route path="/create-post" element={<CreatePostPage />} />
            </Route>
          </Routes>

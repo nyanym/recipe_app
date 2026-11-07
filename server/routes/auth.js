@@ -74,6 +74,7 @@ router.post("/login", async (req, res) => {
 
 });
 
+// To check if user is logged in
 router.get("/me", async (req, res) => {
     try {
         if (!req.session.userId) {
@@ -101,6 +102,25 @@ router.get("/me", async (req, res) => {
             message: "Server error"
         });
     }
+});
+
+// Log out
+router.post('/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Logout Failed:', err);
+            return res.status(500).json({message: 'Could not log out'});
+        }
+
+        res.clearCookie('connect.sid', {
+            path: '/',
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
+
+        return res.status(200).json({ message: 'Logged out successfully' });
+    });
 });
 
 
