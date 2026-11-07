@@ -17,7 +17,8 @@ export function AuthProvider({ children }) {
                 const response = await fetch(
                     'http://localhost:5000/api/auth/me',
                     {
-                        credentials: 'include'
+                        credentials: 'include',
+                        cache: 'no-store'
                     }
                 );
 

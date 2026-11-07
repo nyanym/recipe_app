@@ -10,6 +10,7 @@ import PostButton from './Post-btn';
 import CreatePostPage from './CreatePostPage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -115,12 +116,16 @@ function App() {
                     </div>
                   </div>
 
-               </>
-             }
-           />
-           <Route path="/create-post" element={<CreatePostPage />} />
+                </>
+                }
+              />
+           
            <Route path="/signup" element={<Signup />} />
            <Route path="/login" element={<Login />} />
+
+           <Route element={<ProtectedRoute />}>
+                <Route path="/create-post" element={<CreatePostPage />} />
+           </Route>
          </Routes>
 
         </main>
