@@ -1,4 +1,5 @@
 require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -9,10 +10,10 @@ const MongoStore = require('connect-mongo').default;
 
 const app = express();
 
-// connect to MongoDB Atlas
-connectDB();
+// Port to MongoDB Atlas
+const PORT = process.env.PORT || 5000;
 
-// middleware
+// Middleware
 app.use(cors({
   origin: 'http://localhost:5173',
   credentials: true
@@ -20,6 +21,7 @@ app.use(cors({
 
 app.use(express.json());
 
+// Session config
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
@@ -52,16 +54,27 @@ app.get('/api/message', (req, res) => {
 // Posts API (create + list)
 app.use('/api/posts', postRoutes);
 
+// Don't cache authentication information
+app.use('/api/auth', (req, res, next) => {
+    res.set('Cache-Control', 'no-store');
+    next();
+});
+
 //Authentication API
 app.use('/api/auth', authRoutes);
 
-// // restricting what frontend can talk to backend
-// app.use(cors({
-//   origin: 'https://my-recipe-app.vercel.app', // Your frontend domain
-//   credentials: true
-// }));
+//Start MongoDB Server
+const startServer = async () => {
+    try {
+        await connectDB();
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Node server is running on http://localhost:${PORT}`);
-});
+        app.listen(PORT, () => {
+            console.log(`Node server is running on http://localhost:${PORT}`);
+        });
+    } catch (error) {
+        console.error('Server startup failed:', error);
+        process.exit(1);
+    }
+};
+
+startServer();
