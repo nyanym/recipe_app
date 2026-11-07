@@ -6,6 +6,7 @@ import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
 import CreatePostPage from './CreatePostPage';
 import RecipeCard from './RecipeCard';
+import ProfilePage from './ProfilePage';
 
 // placeholder data until the feed fetches posts (posts have no image/author/rating yet)
 const sampleRecipes = [
@@ -167,6 +168,9 @@ function App() {
             path="/create-post" 
             element={<CreatePostPage onPostCreated={fetchPosts} />} 
           />
+          <Route 
+            path="/profile" 
+            element={<ProfilePage />} />
         </Routes>
 
         </main>
