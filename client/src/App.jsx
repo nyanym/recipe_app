@@ -121,7 +121,7 @@ function App() {
               <span className="icon">⚙️</span>
               {isOpen && <span className="label">Settings</span>}
             </div>
-            <div className="nav-item">
+            <div className="nav-item" onClick={() => navigate('/profile')}>
               <span className="icon">👤</span>
               {isOpen && <span className="label">Profile</span>}
             </div>
@@ -139,7 +139,7 @@ function App() {
 
                   <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-                    <button className="profile-btn">Profile</button>
+                    <button className="profile-btn" onClick={() => navigate('/profile')}>Profile</button>
                   </div>
 
                   <h2>Card Title</h2>
