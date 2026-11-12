@@ -2,14 +2,16 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css'
 
-import SearchBar from './SearchBar';
-import PostButton from './Post-btn';
-import CreatePostPage from './CreatePostPage';
+import SearchBar from './components/SearchBar';
+import PostButton from './components/Post-btn';
+import CreatePostPage from './pages/CreatePostPage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
-import RecipeCard from './RecipeCard';
+import RecipeCard from './components/RecipeCard';
+import AppLayout from './layouts/AppLayout';
+import Dashboard from './pages/Dashboard';
 
 function App() {
   const navigate = useNavigate();
@@ -100,98 +102,132 @@ function App() {
   };
 
   return (
-    <>
-      <div className="app-container">
-        {/* Conditionally apply the .open class based on state */}
-        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-          <div className="sidebar-content">
+    <Routes>
+      {/* Public routes without the sidebar */}
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Login />} />
 
-            <div className="sidebar-header">
-              <div className="website">
-                <span className="website-icon">🫨</span>
-                <span className="website-name">Website Name</span>
-              </div>
+      {/* Protected routes with the sidebar layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route
+          element={
+            <AppLayout
+              user={user}
+              onLogout={handleLogout}
+              onCreatePost={handleCreatePost}
+            />
+          }
+        >
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                posts={posts}
+                loading={loading}
+                onSearch={handleSearch}
+                onDeletePost={handleDeletePost}
+              />
+            }
+          />
+          <Route
+            path="/create-post"
+            element={<CreatePostPage onPostCreated={fetchPosts} />}
+          />
+        </Route>
+      </Route>
+    </Routes>
+    // <>
+    //   <div className="app-container">
+    //     {/* Conditionally apply the .open class based on state */}
+    //     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
+    //       <div className="sidebar-content">
 
-                <button onClick={toggleSidebar} className="toggle-btn">
-                  {isOpen ? '✕' : '❯'}
-                </button>
-            </div>
+    //         <div className="sidebar-header">
+    //           <div className="website">
+    //             <span className="website-icon">🫨</span>
+    //             <span className="website-name">Website Name</span>
+    //           </div>
 
-            {/* side buttons */}
-            <div className="nav-item" onClick={() => navigate('/')}>
-              <span className="icon">📊</span>
-              {isOpen && <span className="label">Dashboard</span>}
-            </div>
+    //             <button onClick={toggleSidebar} className="toggle-btn">
+    //               {isOpen ? '✕' : '❯'}
+    //             </button>
+    //         </div>
+
+    //         {/* side buttons */}
+    //         <div className="nav-item" onClick={() => navigate('/')}>
+    //           <span className="icon">📊</span>
+    //           {isOpen && <span className="label">Dashboard</span>}
+    //         </div>
             
-            <div className="nav-item">
-              <PostButton onClick={handleCreatePost} isCollapsed={!isOpen}/>
-            </div>
+    //         <div className="nav-item">
+    //           <PostButton onClick={handleCreatePost} isCollapsed={!isOpen}/>
+    //         </div>
 
-            <div className="nav-item">
-              <span className="icon">⚙️</span>
-              {isOpen && <span className="label">Settings</span>}
-            </div>
-            <div className="nav-item">
-              <span className="icon">👤</span>
-              {isOpen && <span className="label">Profile</span>}
-            </div>
-            {user && (
-              <div>
-                <p>Logged in as: {user.username}</p>
-                <button onClick={handleLogout}>
-                  Log Out
-                </button>
-              </div>
-            )}
+    //         <div className="nav-item">
+    //           <span className="icon">⚙️</span>
+    //           {isOpen && <span className="label">Settings</span>}
+    //         </div>
+    //         <div className="nav-item">
+    //           <span className="icon">👤</span>
+    //           {isOpen && <span className="label">Profile</span>}
+    //         </div>
+    //         {user && (
+    //           <div>
+    //             <p>Logged in as: {user.username}</p>
+    //             <button onClick={handleLogout}>
+    //               Log Out
+    //             </button>
+    //           </div>
+    //         )}
 
-          </div>
-        </aside>
+    //       </div>
+    //     </aside>
 
-        <main className="main-content">
-           <Routes>
+    //     <main className="main-content">
+    //        <Routes>
            
-           <Route path="/signup" element={<Signup />} />
-           <Route path="/login" element={<Login />} />
+    //        <Route path="/signup" element={<Signup />} />
+    //        <Route path="/login" element={<Login />} />
 
-           <Route element={<ProtectedRoute />}>
+    //        <Route element={<ProtectedRoute />}>
            
-               <Route
-                path="/"
-                element={
-                  <>
+    //            <Route
+    //             path="/"
+    //             element={
+    //               <>
 
-                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-                      <button className="profile-btn">Profile</button>
-                    </div>
+    //                 <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+    //                   <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+    //                   <button className="profile-btn">Profile</button>
+    //                 </div>
 
-                    <h2>Card Title</h2>
-                    <div className="feed-card">
-                      {loading ? (
-                        <p>Loading recipes...</p>
-                      ) : posts.length === 0 ? (
-                        <p>No recipes found. Create one!</p>
-                      ) : (
-                        posts.map((post) => (
-                          <RecipeCard 
-                            key={post._id} 
-                            id={post._id} 
-                            title={post.title} 
-                            content={post.content} 
-                            onDelete={handleDeletePost} 
-                          />
-                        ))
-                      )}
-                    </div>
-                  </>
-                  }
-                />
-                <Route path="/create-post" element={<CreatePostPage onPostCreated={fetchPosts} />} />
-           </Route>
-         </Routes>
-        </main>
-      </div>
-    </>
+    //                 <h2>Card Title</h2>
+    //                 <div className="feed-card">
+    //                   {loading ? (
+    //                     <p>Loading recipes...</p>
+    //                   ) : posts.length === 0 ? (
+    //                     <p>No recipes found. Create one!</p>
+    //                   ) : (
+    //                     posts.map((post) => (
+    //                       <RecipeCard 
+    //                         key={post._id} 
+    //                         id={post._id} 
+    //                         title={post.title} 
+    //                         content={post.content} 
+    //                         onDelete={handleDeletePost} 
+    //                       />
+    //                     ))
+    //                   )}
+    //                 </div>
+    //               </>
+    //               }
+    //             />
+    //             <Route path="/create-post" element={<CreatePostPage onPostCreated={fetchPosts} />} />
+    //        </Route>
+    //      </Routes>
+    //     </main>
+    //   </div>
+    // </>
   );
 }
 
