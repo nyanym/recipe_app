@@ -174,6 +174,23 @@ function App() {
 
                     <h2>Card Title</h2>
                     <div className="feed-card">
+                      {loading ? (
+                        <p>Loading recipes...</p>
+                      ) : posts.length === 0 ? (
+                        <p>No recipes found. Create one!</p>
+                      ) : (
+                        posts.map((post) => (
+                          <RecipeCard 
+                            key={post._id} 
+                            id={post._id} 
+                            title={post.title} 
+                            content={post.content} 
+                            onDelete={handleDeletePost} 
+                          />
+                        ))
+                      )}
+                    </div>
+                    {/* <div className="feed-card">
 
                       <div className="column-card">
                         <h3>Card 1</h3>
@@ -189,7 +206,7 @@ function App() {
                         <h3>Card 3</h3>
                         <p>Content for the third column.</p>
                       </div>
-                    </div>
+                    </div> */}
 
                   </>
                   }
@@ -217,14 +234,14 @@ function App() {
                     )}
                   </div>
 
-               </>
+               {/* </>
              }
            />
            <Route 
             path="/create-post" 
             element={<CreatePostPage onPostCreated={fetchPosts} />} 
           />
-        </Routes>
+        </Routes> */}
 
         </main>
       </div>
