@@ -11,13 +11,6 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import RecipeCard from './RecipeCard';
 
-// placeholder data until the feed fetches posts (posts have no image/author/rating yet)
-const sampleRecipes = [
-  { id: 1, title: 'Lemon Garlic Pasta', author: 'Alex', imageUrl: null, rating: 4, likes: 10000 },
-  { id: 2, title: 'Spicy Tofu Stir-Fry', author: 'Sam', imageUrl: null, rating: 5, likes: 2400 },
-  { id: 3, title: 'Banana Bread', author: 'Jordan', imageUrl: null, rating: 3, likes: 870 },
-];
-
 function App() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
