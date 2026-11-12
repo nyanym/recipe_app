@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom';
-// import heroImg from './assets/hero.png'
-// import reactLogo from './assets/react.svg'
-// import viteLogo from './assets/vite.svg'
 import './App.css'
 
 import SearchBar from './SearchBar';
@@ -12,10 +9,16 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
+import RecipeCard from './RecipeCard';
+
+// placeholder data until the feed fetches posts (posts have no image/author/rating yet)
+const sampleRecipes = [
+  { id: 1, title: 'Lemon Garlic Pasta', author: 'Alex', imageUrl: null, rating: 4, likes: 10000 },
+  { id: 2, title: 'Spicy Tofu Stir-Fry', author: 'Sam', imageUrl: null, rating: 5, likes: 2400 },
+  { id: 3, title: 'Banana Bread', author: 'Jordan', imageUrl: null, rating: 3, likes: 870 },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-  const [message, setMessage] = useState('')
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
@@ -31,23 +34,70 @@ function App() {
   };
 
   // for message
+  const [posts, setPosts] = useState([]);       // posts
+  const [loading, setLoading] = useState(true); // posts
+  const [isOpen, setIsOpen] = useState(true);   // sidebar
+
   useEffect(() => {
-    fetch('http://localhost:5000/api/message')
-      .then((res) => res.json())
-      .then((data) => setMessage(data.message))
-      .catch((err) => console.error(err));
+    fetchPosts();
   }, []);
 
-  // for sidebar
-  const [isOpen, setIsOpen] = useState(true);
+  // grab posts
+  const fetchPosts = () => {
+    setLoading(true);
+    fetch('http://localhost:5000/api/posts')
+      .then((res) => res.json())
+      .then((data) => {
+        setPosts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('Error fetching posts:', err);
+        setLoading(false);
+      });
+  };
+
+  const handleDeletePost = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
+      } else {
+        const errorData = await res.json();
+        alert(`Failed to delete: ${errorData.error}`);
+      }
+    } catch (err) {
+      console.error('Error deleting post:', err);
+    }
+  };
 
   const toggleSidebar = () => {
     setIsOpen((prev) => !prev);
   };
 
   // SearchBar
-  const handleSearch = (searchTerm) => {
-    console.log('Searching for:', searchTerm);
+  const handleSearch = async (searchTerm) => {
+    setLoading(true);
+      try {
+        // if input is empty, all posts
+        if (!searchTerm.trim()) {
+          fetchPosts();
+          return;
+        }
+
+        // request posts from server
+        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
+        const data = await res.json();
+        
+        setPosts(data);
+      } catch (err) {
+        console.error('Error searching posts:', err);
+      } finally {
+        setLoading(false);
+      }
   };
 
   // Create post
@@ -117,7 +167,6 @@ function App() {
                 element={
                   <>
 
-
                     <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                       <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
                       <button className="profile-btn">Profile</button>
@@ -149,6 +198,33 @@ function App() {
                 <Route path="/create-post" element={<CreatePostPage />} />
            </Route>
          </Routes>
+                  <h2>Card Title</h2>
+                  <div className="feed-card">
+                    {loading ? (
+                      <p>Loading recipes...</p>
+                    ) : posts.length === 0 ? (
+                      <p>No recipes found. Create one!</p>
+                    ) : (
+                      posts.map((post) => (
+                        <RecipeCard 
+                          key={post._id} 
+                          id={post._id} 
+                          title={post.title} 
+                          content={post.content} 
+                          onDelete={handleDeletePost} 
+                        />
+                      ))
+                    )}
+                  </div>
+
+               </>
+             }
+           />
+           <Route 
+            path="/create-post" 
+            element={<CreatePostPage onPostCreated={fetchPosts} />} 
+          />
+        </Routes>
 
         </main>
       </div>

@@ -10,7 +10,7 @@ const countWords = (text) => {
   return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
 };
 
-function CreatePostPage() {
+function CreatePostPage({ onPostCreated }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -49,6 +49,11 @@ function CreatePostPage() {
 
       if (!response.ok) {
         throw new Error('Failed to create post');
+      }
+      
+      // update dashboard to display most recept post
+      if (onPostCreated) {
+        onPostCreated();
       }
 
       navigate('/');
