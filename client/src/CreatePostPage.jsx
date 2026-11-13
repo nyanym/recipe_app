@@ -16,6 +16,7 @@ function CreatePostPage({ onPostCreated }) {
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [image, setImage] = useState(null);
 
   const titleWordCount = countWords(title);
 
@@ -39,16 +40,22 @@ function CreatePostPage({ onPostCreated }) {
     setIsSubmitting(true);
 
     try {
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('content', content.trim());
+      if (image) {
+        formData.append('image', image); // matches upload.single('image') in posts.js
+      }
+
       const response = await fetch('http://localhost:5000/api/posts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ title: title.trim(), content: content.trim() }),
+        credentials: 'include',
+        body: formData,
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create post');
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Server responded with ${response.status}`);
       }
       
       // update dashboard to display most recept post
@@ -59,7 +66,7 @@ function CreatePostPage({ onPostCreated }) {
       navigate('/');
     } catch (err) {
       console.error('Error creating post:', err);
-      setError('Failed to create post. Please try again.');
+      setError(err.message || 'Failed to create post. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -100,6 +107,16 @@ function CreatePostPage({ onPostCreated }) {
             rows="8"
             required
             className="form-textarea"
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Recipe Image (Optional)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0])}
+            className="form-input"
           />
         </div>
 

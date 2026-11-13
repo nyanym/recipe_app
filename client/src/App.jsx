@@ -178,6 +178,7 @@ function App() {
                             id={post._id} 
                             title={post.title} 
                             content={post.content} 
+                            hasImage={Boolean(post.image?.contentType)}
                             onDelete={handleDeletePost} 
                           />
                         ))

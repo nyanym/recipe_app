@@ -27,9 +27,9 @@ const postSchema = new mongoose.Schema(
       required: [true, 'Content is required'],
       trim: true,
     },
-    imageUrl: {
-      type: String,
-      default: ''
+    image: {
+      data: Buffer,
+      contentType: String,
     },
   },
   { timestamps: true }

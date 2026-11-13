@@ -3,15 +3,19 @@ import './RecipeCard.css';
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ id, title, author, imageUrl, rating, likes, onDelete }) {
+function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete }) {
   const filledStars = Math.round(rating);
 
   return (
     <div className="recipe-card">
       <div className="recipe-card-cover">
-        {imageUrl
-          ? <img src={imageUrl} alt={title} />
-          : <span className="recipe-card-placeholder">🍳</span>}
+        {hasImage && (
+          <img
+            src={`http://localhost:5000/api/posts/${id}/image`}
+            alt={title}
+            className="recipe-image"
+          />
+        )}
       </div>
 
       <p className="recipe-card-title">
