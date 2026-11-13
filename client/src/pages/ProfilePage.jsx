@@ -1,5 +1,5 @@
 import './ProfilePage.css';
-import RecipeCard from './RecipeCard';
+import RecipeCard from '../components/RecipeCard';
 
 // temp info until we can read actual recipes users made
 const sampleRecipes = [
