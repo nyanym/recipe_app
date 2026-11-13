@@ -5,17 +5,28 @@ import './App.css'
 import SearchBar from './SearchBar';
 import PostButton from './Post-btn';
 import CreatePostPage from './CreatePostPage';
+import Signup from './pages/Signup';
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+import { useAuth } from './context/AuthContext';
 import RecipeCard from './RecipeCard';
-
-// placeholder data until the feed fetches posts (posts have no image/author/rating yet)
-const sampleRecipes = [
-  { id: 1, title: 'Lemon Garlic Pasta', author: 'Alex', imageUrl: null, rating: 4, likes: 10000 },
-  { id: 2, title: 'Spicy Tofu Stir-Fry', author: 'Sam', imageUrl: null, rating: 5, likes: 2400 },
-  { id: 3, title: 'Banana Bread', author: 'Jordan', imageUrl: null, rating: 3, likes: 870 },
-];
 
 function App() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  // for logout
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+      alert('Unable to log out. Please try again.');
+    }
+  };
+
+  // for message
   const [posts, setPosts] = useState([]);       // posts
   const [loading, setLoading] = useState(true); // posts
   const [isOpen, setIsOpen] = useState(true);   // sidebar
@@ -124,55 +135,64 @@ function App() {
               <span className="icon">👤</span>
               {isOpen && <span className="label">Profile</span>}
             </div>
+            {user && (
+              <div>
+                <p>Logged in as: {user.username}</p>
+                <button onClick={handleLogout}>
+                  Log Out
+                </button>
+              </div>
+            )}
 
           </div>
         </aside>
 
         <main className="main-content">
            <Routes>
-             <Route
-               path="/"
-               element={
-                 <>
+           
+           <Route path="/signup" element={<Signup />} />
+           <Route path="/login" element={<Login />} />
 
+           <Route element={<ProtectedRoute />}>
+           
+               <Route
+                path="/"
+                element={
+                  <>
 
-                  <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-                    <button className="profile-btn">Profile</button>
-                  </div>
+                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
+                      <button className="profile-btn">Profile</button>
+                    </div>
 
-                  <h2>Card Title</h2>
-                  <div className="feed-card">
-                    {loading ? (
-                      <p>Loading recipes...</p>
-                    ) : posts.length === 0 ? (
-                      <p>No recipes found. Create one!</p>
-                    ) : (
-                      posts.map((post) => (
-                        <RecipeCard 
-                          key={post._id} 
-                          id={post._id} 
-                          title={post.title} 
-                          content={post.content} 
-                          onDelete={handleDeletePost} 
-                        />
-                      ))
-                    )}
-                  </div>
-
-               </>
-             }
-           />
-           <Route 
-            path="/create-post" 
-            element={<CreatePostPage onPostCreated={fetchPosts} />} 
-          />
-        </Routes>
-
+                    <h2>Card Title</h2>
+                    <div className="feed-card">
+                      {loading ? (
+                        <p>Loading recipes...</p>
+                      ) : posts.length === 0 ? (
+                        <p>No recipes found. Create one!</p>
+                      ) : (
+                        posts.map((post) => (
+                          <RecipeCard 
+                            key={post._id} 
+                            id={post._id} 
+                            title={post.title} 
+                            content={post.content} 
+                            onDelete={handleDeletePost} 
+                          />
+                        ))
+                      )}
+                    </div>
+                  </>
+                  }
+                />
+                <Route path="/create-post" element={<CreatePostPage onPostCreated={fetchPosts} />} />
+           </Route>
+         </Routes>
         </main>
       </div>
     </>
-  )
+  );
 }
 
 export default App
