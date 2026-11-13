@@ -3,11 +3,14 @@ const Post = require('../models/Post');
 
 const router = express.Router();
 
+// when user searches special characters, treats as plain text
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // create a new post
 router.post('/', async (req, res) => {
   try {
-    const { title, content } = req.body; //MISSING AUTHOR
-    const post = await Post.create({ title, content });
+    const { title, content, ingredients, instructions } = req.body; //MISSING AUTHOR
+    const post = await Post.create({ title, content, ingredients, instructions });
     res.status(201).json(post);
   } catch (err) {
     console.error('Error creating post:', err);
@@ -20,28 +23,39 @@ router.post('/', async (req, res) => {
 
 
   // list all posts, or filter by search query (newest first)
-  router.get('/', async (req, res) => {
-    try {
-      const { search } = req.query;
-      let query = {};
+ router.get('/', async (req, res) => {
+  try {
+    const { search, ingredient } = req.query;
+    const conditions = [];
 
-      if (search) {
-        // case-insensitive regex matching title or content
-        query = {
-          $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { content: { $regex: search, $options: 'i' } }
-          ]
-        };
-      }
-
-      const posts = await Post.find(query).sort({ createdAt: -1 });
-      res.json(posts);
-    } catch (err) {
-      console.error('Error fetching posts:', err);
-      res.status(500).json({ error: 'Server error' });
+    if (search && search.trim() !== '') {
+      conditions.push({
+        title: { $regex: escapeRegex(search.trim()), $options: 'i' },
+      });
     }
-  });
+
+    if (ingredient && ingredient.trim() !== '') {
+      // every listed ingredient must match at least one ingredient name
+      ingredient
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item !== '')
+        .forEach((item) => {
+          conditions.push({
+            'ingredients.name': { $regex: escapeRegex(item), $options: 'i' },
+          });
+        });
+    }
+
+    const query = conditions.length > 0 ? { $and: conditions } : {};
+
+    const posts = await Post.find(query).sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    console.error('Error fetching posts:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 // delete post by ID
 router.delete('/:id', async (req, res) => {

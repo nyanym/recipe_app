@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css'
 
 import SearchBar from './SearchBar';
@@ -13,6 +13,7 @@ import RecipeCard from './RecipeCard';
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
 
   // for logout
@@ -31,23 +32,60 @@ function App() {
   const [loading, setLoading] = useState(true); // posts
   const [isOpen, setIsOpen] = useState(true);   // sidebar
 
-  useEffect(() => {
-    fetchPosts();
-  }, []);
+  // search filters
+  const [titleQuery, setTitleQuery] = useState('');           // matches title only
+  const [ingredientQuery, setIngredientQuery] = useState(''); // "flour, eggs"
+  const [refreshKey, setRefreshKey] = useState(0);            // bump to refetch
 
-  // grab posts
-  const fetchPosts = () => {
-    setLoading(true);
-    fetch('http://localhost:5000/api/posts')
-      .then((res) => res.json())
-      .then((data) => {
-        setPosts(data);
-        setLoading(false);
-      })
-      .catch((err) => {
+  // The search bars start empty, clears filters
+  useEffect(() => {
+    if (location.pathname === '/') {
+      setTitleQuery('');
+      setIngredientQuery('');
+    }
+  }, [location.pathname]);
+
+  // grab posts whenever a filter changes (or a refresh is requested)
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPosts = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        if (titleQuery.trim()) params.set('search', titleQuery.trim());
+        if (ingredientQuery.trim()) params.set('ingredient', ingredientQuery.trim());
+        const queryString = params.toString();
+
+        const res = await fetch(
+          `http://localhost:5000/api/posts${queryString ? `?${queryString}` : ''}`
+        );
+        const data = await res.json();
+
+        if (!cancelled) {
+          setPosts(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
         console.error('Error fetching posts:', err);
-        setLoading(false);
-      });
+        if (!cancelled) setPosts([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    // wait a moment while typing so we don't send a request on every keystroke
+    const noFilters = !titleQuery.trim() && !ingredientQuery.trim();
+    const timer = setTimeout(loadPosts, noFilters ? 0 : 300);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [titleQuery, ingredientQuery, refreshKey]);
+
+  // used by CreatePostPage (onPostCreated) to refresh the list
+  const fetchPosts = () => {
+    setRefreshKey((prev) => prev + 1);
   };
 
   const handleDeletePost = async (id) => {
@@ -71,26 +109,14 @@ function App() {
     setIsOpen((prev) => !prev);
   };
 
-  // SearchBar
-  const handleSearch = async (searchTerm) => {
-    setLoading(true);
-      try {
-        // if input is empty, all posts
-        if (!searchTerm.trim()) {
-          fetchPosts();
-          return;
-        }
+  // SearchBar (title)
+  const handleSearch = (searchTerm) => {
+    setTitleQuery(searchTerm);
+  };
 
-        // request posts from server
-        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
-        const data = await res.json();
-        
-        setPosts(data);
-      } catch (err) {
-        console.error('Error searching posts:', err);
-      } finally {
-        setLoading(false);
-      }
+  // SearchBar (ingredients, comma separated)
+  const handleIngredientSearch = (ingredientTerm) => {
+    setIngredientQuery(ingredientTerm);
   };
 
   // Create post
@@ -98,6 +124,8 @@ function App() {
     navigate('/create-post');
     console.log('Post button clicked! Open modal or redirect to post creation page.');
   };
+
+  const filtersActive = titleQuery.trim() !== '' || ingredientQuery.trim() !== '';
 
   return (
     <>
@@ -160,9 +188,9 @@ function App() {
                 element={
                   <>
 
-                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <SearchBar onSearch={handleSearch} placeholder="Search users, items..." />
-                      <button className="profile-btn">Profile</button>
+                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <SearchBar onSearch={handleSearch} placeholder="Search recipe titles..." />
+                      <SearchBar onSearch={handleIngredientSearch} placeholder="Ingredients (flour, eggs)..." />
                     </div>
 
                     <h2>Card Title</h2>
@@ -170,7 +198,11 @@ function App() {
                       {loading ? (
                         <p>Loading recipes...</p>
                       ) : posts.length === 0 ? (
-                        <p>No recipes found. Create one!</p>
+                        <p>
+                          {filtersActive
+                            ? 'No recipes match your search.'
+                            : 'No recipes found. Create one!'}
+                        </p>
                       ) : (
                         posts.map((post) => (
                           <RecipeCard 
