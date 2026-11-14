@@ -7,6 +7,7 @@ const postRoutes = require('./routes/posts');
 const authRoutes = require ('./routes/auth');
 const session = require('express-session');
 const MongoStore = require('connect-mongo').default;
+const commentRoutes = require('./routes/comments');
 
 const app = express();
 
@@ -62,6 +63,9 @@ app.use('/api/auth', (req, res, next) => {
 
 //Authentication API
 app.use('/api/auth', authRoutes);
+
+//Comment API
+app.use('/api', commentRoutes);
 
 //Start MongoDB Server
 const startServer = async () => {
