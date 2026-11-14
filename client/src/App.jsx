@@ -9,6 +9,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
 
 function App() {
   const navigate = useNavigate();
@@ -124,6 +125,10 @@ function App() {
           <Route
             path="/create-post"
             element={<CreatePostPage onPostCreated={fetchPosts} />}
+          />
+          <Route 
+            path="/profile" 
+            element={<ProfilePage />} 
           />
         </Route>
       </Route>
