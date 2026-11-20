@@ -11,6 +11,9 @@ import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
 
+// Added by Satvik
+import RecipePage from './pages/RecipePage';
+
 function App() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
@@ -129,6 +132,12 @@ function App() {
           <Route 
             path="/profile" 
             element={<ProfilePage />} 
+          />
+
+          { /* Added by Satvik */}
+          <Route
+            path="/recipes/:id"
+            element={<RecipePage posts={posts} loading={loading} />}
           />
         </Route>
       </Route>

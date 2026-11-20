@@ -23,7 +23,7 @@ const stringifyRecipe = ({ servings, minutes, ingredients, instructions }) => {
     `Servings: ${servings}\n` +
     `Minutes: ${minutes}\n\n` +
     `Ingredients:\n` +
-    `${ingredientsList}\n` +
+    `${ingredientsList}\n\n` +
     `Instructions:\n ${instructions}`
   );
 };

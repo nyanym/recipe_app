@@ -1,5 +1,9 @@
 import './RecipeCard.css';
 
+// Added by Satvik
+import { Link } from 'react-router-dom';
+
+
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
@@ -18,8 +22,12 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete }) {
         )}
       </div>
 
+      {/* Modifyed by Satvik */}
       <p className="recipe-card-title">
-        <strong>{title}</strong> by {author}
+        <Link to={`/recipes/${id}`}>
+          <strong>{title}</strong>
+        </Link>{' '}
+        by {author}
       </p>
 
       <div className="recipe-card-meta">
