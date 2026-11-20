@@ -194,7 +194,7 @@ function CreatePostPage({ onPostCreated }) {
         <div className = "form-group">
           <label className="form-label">Ingredients</label>
           {ingredients.map((item, index) => (
-            <div key={index}>
+            <div key={index} className="ingredient-row">
               <input
               type="text"
               value={item}
