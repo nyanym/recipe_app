@@ -3,8 +3,6 @@ import './RecipeCard.css';
 // Added by Satvik
 import { Link } from 'react-router-dom';
 
-import Comments from './Comments'
-
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
@@ -44,7 +42,6 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, isOw
         Delete
       </button>)}
 
-      <Comments postId={id} />
     </div>
   );
 }
