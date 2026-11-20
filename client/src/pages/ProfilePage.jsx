@@ -26,55 +26,60 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
 
   return (
     <div className="profile-wrapper">
-      <div className="profile-avatar">
-        {user.profilePicUrl && <img src={user.profilePicUrl} alt={user.username} />}
-      </div>
 
-      <h2>{user.displayName}</h2>
-      <p className="profile-username">@{user.username}</p>
-      <p>{user.bio}</p>
-      <h3 className="profile-section-title">Recipes</h3>
-      <div className="profile-recipes">
-        {recipes.map((recipe) => (
-          <RecipeCard
-            key={recipe.id}
-            id={recipe.id}
-            title={recipe.title}
-            author={user.username}
-            imageUrl={recipe.imageUrl}
-            rating={recipe.rating}
-            likes={recipe.likes}
-          />
-        ))}
-      </div>
+      <div className="profile-main">
+        <div className="profile-avatar">
+          {user.profilePicUrl && <img src={user.profilePicUrl} alt={user.username} />}
+        </div>
 
-      {/* Saved Recipes */}
-      <h2>Saved Recipes</h2>
-      {loading ? (
-        <p>Loading saved recipes...</p>
-      ) : savedPosts.length === 0 ? (
-        <p>You haven't saved any recipes yet.</p>
-      ) : (
-        <div className="saved-recipes">
-          {savedPosts.map((post) => (
+        <h2>{user.displayName}</h2>
+        <p className="profile-username">@{user.username}</p>
+        <p>{user.bio}</p>
+
+        <h3 className="profile-section-title">Recipes</h3>
+        <div className="profile-recipes">
+          {recipes.map((recipe) => (
             <RecipeCard
-              key={post._id}
-              id={post._id}
-              title={post.title}
-              content={post.content}
-              hasImage={Boolean(post.image?.contentType)}
-              author={post.author}
-              rating={post.rating}
-              likes={post.likes}
-              isOwner={post.isOwner}
-              isSaved={post.isSaved}
-              onDelete={onDeletePost}
-              onSaveRecipe={onSavePost}
+              key={recipe.id}
+              id={recipe.id}
+              title={recipe.title}
+              author={user.username}
+              imageUrl={recipe.imageUrl}
+              rating={recipe.rating}
+              likes={recipe.likes}
             />
           ))}
         </div>
-      )}
+      </div>
 
+      {/* Saved Recipes */}
+      <div className="profile-saved">
+        <h2>Saved Recipes</h2>
+        {loading ? (
+          <p>Loading saved recipes...</p>
+        ) : savedPosts.length === 0 ? (
+          <p>You haven't saved any recipes yet.</p>
+        ) : (
+          <div className="saved-recipes">
+            {savedPosts.map((post) => (
+              <RecipeCard
+                key={post._id}
+                id={post._id}
+                title={post.title}
+                content={post.content}
+                hasImage={Boolean(post.image?.contentType)}
+                author={post.author}
+                rating={post.rating}
+                likes={post.likes}
+                isOwner={post.isOwner}
+                isSaved={post.isSaved}
+                onDelete={onDeletePost}
+                onSaveRecipe={onSavePost}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
