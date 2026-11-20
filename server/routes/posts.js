@@ -12,7 +12,15 @@ const upload = multer({
 // create a new post
 router.post('/', upload.single('image'), async (req, res) => {  
   try {
-    const { title, content } = req.body; //MISSING AUTHOR
+    // block unauthenticated users
+    if (!req.session.userId) {
+      return res.status(401).json({ error: 'You must be logged in to post.' });
+    }
+
+    const { title, content } = req.body; 
+
+    // author
+    const authorId = req.session.userId;
 
     if (!title || !content) {
       return res.status(400).json({ error: 'Title and content are required' });
@@ -21,6 +29,7 @@ router.post('/', upload.single('image'), async (req, res) => {
     const postData = {
       title,
       content,
+      author: authorId,
     };
 
     // add binary image data if a file was uploaded
@@ -33,6 +42,9 @@ router.post('/', upload.single('image'), async (req, res) => {
 
     const newPost = new Post(postData);
     const savedPost = await newPost.save();
+
+    await savedPost.populate('author', 'username');
+
 
     // return post
     const responsePost = savedPost.toObject();
@@ -67,7 +79,11 @@ router.get('/', async (req, res) => {
       };
     }
 
-    const posts = await Post.find(query).select('-image.data').sort({ createdAt: -1 });
+    const posts = await Post.find(query)
+      .select('-image.data')
+      .populate('author', 'username')
+      .sort({ createdAt: -1 });
+
     res.json(posts);
   } catch (err) {
     console.error('Error fetching posts:', err);
@@ -96,6 +112,9 @@ router.get('/:id/image', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     const post = await Post.findByIdAndDelete(req.params.id);
+
+    // only person who posted it can delete
+    // if (post.author.toString() === req.session.userId)
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });

@@ -31,6 +31,11 @@ const postSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    }
   },
   { timestamps: true }
 );

@@ -3,7 +3,7 @@ import RecipeCard from '../components/RecipeCard';
 import './Dashboard.css';
 
 
-export default function DashboardPage({ posts, loading, onSearch, onDeletePost }) {
+export default function DashboardPage({ posts, loading, onSearch, onDeletePost}) {
   const renderFeed = () => {
     if (loading) return <p>Loading recipes...</p>;
     if (posts.length === 0) return <p>No recipes found. Create one!</p>;
@@ -16,6 +16,7 @@ export default function DashboardPage({ posts, loading, onSearch, onDeletePost }
         content={post.content}
         hasImage={Boolean(post.image?.contentType)}
         onDelete={onDeletePost}
+        author={post.author}
       />
     ));
   };

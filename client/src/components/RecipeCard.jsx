@@ -27,7 +27,7 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete }) {
         <Link to={`/recipes/${id}`}>
           <strong>{title}</strong>
         </Link>{' '}
-        by {author}
+        by {author?.username || 'Unknown'}
       </p>
 
       <div className="recipe-card-meta">
