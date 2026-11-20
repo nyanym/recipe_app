@@ -17,6 +17,7 @@ export default function DashboardPage({ posts, loading, onSearch, onDeletePost})
         hasImage={Boolean(post.image?.contentType)}
         onDelete={onDeletePost}
         author={post.author}
+        isOwner={post.isOwner}
       />
     ));
   };

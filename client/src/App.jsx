@@ -35,12 +35,14 @@ function App() {
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [user]);
 
   // grab posts
   const fetchPosts = () => {
     setLoading(true);
-    fetch('http://localhost:5000/api/posts')
+    fetch('http://localhost:5000/api/posts', {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => {
         setPosts(data);
@@ -56,14 +58,17 @@ function App() {
     try {
       const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
-      if (res.ok) {
-        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to delete: ${errorData.error}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`Failed to delete: ${data.error}`);
+        return;
       }
+
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
     } catch (err) {
       console.error('Error deleting post:', err);
     }
@@ -80,7 +85,9 @@ function App() {
         }
 
         // request posts from server
-        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
+        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`, {
+          credentials: 'include',
+        });
         const data = await res.json();
         
         setPosts(data);

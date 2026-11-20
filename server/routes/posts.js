@@ -52,6 +52,7 @@ router.post('/', upload.single('image'), async (req, res) => {
       delete responsePost.image.data;
     }
 
+    responsePost.isOwner = true;
     res.status(201).json(responsePost);
   } catch (err) {
     console.error('Error creating post:', err);
@@ -82,9 +83,18 @@ router.get('/', async (req, res) => {
     const posts = await Post.find(query)
       .select('-image.data')
       .populate('author', 'username')
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
-    res.json(posts);
+    const postsWithOwnership = posts.map((post) => ({
+      ...post,
+      isOwner: Boolean(
+        req.session.userId &&
+        String(post.author?._id) === String(req.session.userId)
+      ),
+    }));
+
+    res.json(postsWithOwnership);
   } catch (err) {
     console.error('Error fetching posts:', err);
     res.status(500).json({ error: 'Server error' });
@@ -111,14 +121,18 @@ router.get('/:id/image', async (req, res) => {
 // delete post by ID
 router.delete('/:id', async (req, res) => {
   try {
-    const post = await Post.findByIdAndDelete(req.params.id);
-
-    // only person who posted it can delete
-    // if (post.author.toString() === req.session.userId)
+    const post = await Post.findById(req.params.id);
 
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
     }
+
+    // check if user is author
+    if (!post.author || post.author.toString() !== req.session.userId.toString()) {
+      return res.status(403).json({ error: 'You can only delete your own posts.' });
+    }
+
+    await post.deleteOne();
 
     res.json({ message: 'Post deleted successfully', id: req.params.id });
   } catch (err) {
