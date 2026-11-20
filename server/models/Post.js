@@ -27,6 +27,15 @@ const postSchema = new mongoose.Schema(
       required: [true, 'Content is required'],
       trim: true,
     },
+    image: {
+      data: Buffer,
+      contentType: String,
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    }
   },
   { timestamps: true }
 );

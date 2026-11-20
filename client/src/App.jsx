@@ -2,16 +2,17 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css'
 
-import SearchBar from './components/SearchBar';
-import PostButton from './components/Post-btn';
 import CreatePostPage from './pages/CreatePostPage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
-import RecipeCard from './components/RecipeCard';
 import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
+
+// Added by Satvik
+import RecipePage from './pages/RecipePage';
 
 function App() {
   const navigate = useNavigate();
@@ -31,16 +32,17 @@ function App() {
   // for message
   const [posts, setPosts] = useState([]);       // posts
   const [loading, setLoading] = useState(true); // posts
-  const [isOpen, setIsOpen] = useState(true);   // sidebar
 
   useEffect(() => {
     fetchPosts();
-  }, []);
+  }, [user]);
 
   // grab posts
   const fetchPosts = () => {
     setLoading(true);
-    fetch('http://localhost:5000/api/posts')
+    fetch('http://localhost:5000/api/posts', {
+      credentials: 'include',
+    })
       .then((res) => res.json())
       .then((data) => {
         setPosts(data);
@@ -56,21 +58,20 @@ function App() {
     try {
       const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
-      if (res.ok) {
-        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to delete: ${errorData.error}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`Failed to delete: ${data.error}`);
+        return;
       }
+
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
     } catch (err) {
       console.error('Error deleting post:', err);
     }
-  };
-
-  const toggleSidebar = () => {
-    setIsOpen((prev) => !prev);
   };
 
   // SearchBar
@@ -84,7 +85,9 @@ function App() {
         }
 
         // request posts from server
-        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`);
+        const res = await fetch(`http://localhost:5000/api/posts?search=${encodeURIComponent(searchTerm)}`, {
+          credentials: 'include',
+        });
         const data = await res.json();
         
         setPosts(data);
@@ -132,6 +135,16 @@ function App() {
           <Route
             path="/create-post"
             element={<CreatePostPage onPostCreated={fetchPosts} />}
+          />
+          <Route 
+            path="/profile" 
+            element={<ProfilePage />} 
+          />
+
+          { /* Added by Satvik */}
+          <Route
+            path="/recipes/:id"
+            element={<RecipePage posts={posts} loading={loading} />}
           />
         </Route>
       </Route>
