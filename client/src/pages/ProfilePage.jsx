@@ -1,6 +1,7 @@
 import './ProfilePage.css';
 import RecipeCard from '../components/RecipeCard';
 
+
 // temp info until we can read actual recipes users made
 const sampleRecipes = [
   { id: 1, title: 'Apple', imageUrl: null, rating: 5, likes: 120 },
@@ -17,9 +18,12 @@ const sampleUser = {
   profilePicUrl: null,
 };
 
-function ProfilePage() {
+function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
   const user = sampleUser;
   const recipes = sampleRecipes;
+
+  const savedPosts = posts.filter((post) => post.isSaved);
+
   return (
     <div className="profile-wrapper">
       <div className="profile-avatar">
@@ -43,6 +47,34 @@ function ProfilePage() {
           />
         ))}
       </div>
+
+      {/* Saved Recipes */}
+      <h2>Saved Recipes</h2>
+      {loading ? (
+        <p>Loading saved recipes...</p>
+      ) : savedPosts.length === 0 ? (
+        <p>You haven't saved any recipes yet.</p>
+      ) : (
+        <div className="saved-recipes">
+          {savedPosts.map((post) => (
+            <RecipeCard
+              key={post._id}
+              id={post._id}
+              title={post.title}
+              content={post.content}
+              hasImage={Boolean(post.image?.contentType)}
+              author={post.author}
+              rating={post.rating}
+              likes={post.likes}
+              isOwner={post.isOwner}
+              isSaved={post.isSaved}
+              onDelete={onDeletePost}
+              onSaveRecipe={onSavePost}
+            />
+          ))}
+        </div>
+      )}
+
     </div>
   );
 }

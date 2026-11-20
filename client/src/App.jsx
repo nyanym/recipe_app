@@ -166,7 +166,14 @@ function App() {
           />
           <Route 
             path="/profile" 
-            element={<ProfilePage />} 
+            element={
+              <ProfilePage 
+                posts={posts}
+                loading={loading}
+                onDeletePost={handleDeletePost}
+                onSavePost={handleSavePost}
+              />
+            } 
           />
 
           { /* Added by Satvik */}
