@@ -1,0 +1,36 @@
+.comments-section {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #ddd;
+}
+
+.comment {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+.comment p {
+    margin: 5px 0;
+}
+
+.comments-section form {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.comments-section input {
+    flex: 1;
+    padding: 8px;
+}
+
+.comments-section button {
+    padding: 8px 15px;
+    cursor: pointer;
+}
+
+.error {
+    color: red;
+}

@@ -1,4 +1,5 @@
 import './RecipeCard.css';
+import Comments from './Comments'
 
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
@@ -30,6 +31,8 @@ function RecipeCard({ id, title, author, imageUrl, rating, likes, onDelete }) {
       <button onClick={() => onDelete(id)} className="delete-btn">
         Delete
       </button>
+
+      <Comments postId={id} />
     </div>
   );
 }

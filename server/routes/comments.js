@@ -18,7 +18,7 @@ router.get('/posts/:postId/comments', async (req, res) => {
 });
 
 // Make a comment
-router.post('/posts/:postId/comments', async (req, res) => {
+router.post('/posts/:postId/comments', authMiddleware, async (req, res) => {
     try {
         const { text } = req.body;
 
@@ -34,7 +34,7 @@ router.post('/posts/:postId/comments', async (req, res) => {
 
         const comment = await Comment.create({
             post: post._id,
-            author: req.user.id,
+            author: req.user._id,
             username: req.user.username,
             text: text.trim()
         });
