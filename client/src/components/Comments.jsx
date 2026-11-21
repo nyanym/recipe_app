@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import './Comments.css';
 
-function Comments({ postId }){
+function Comments({ postId, currentUsername }){
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState('');
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(true);
+    const [deletingId, setDeletingId] = useState(null);
+
     
     useEffect(() => {
         const fetchComments = async () => {
@@ -68,6 +70,31 @@ function Comments({ postId }){
 
     }
 
+    async function handleDelete(commentId) {
+        setDeletingId(commentId);
+        setError('');
+
+        try {
+            const response = await fetch(
+            `http://localhost:5000/api/comments/${commentId}`,
+            { method: 'DELETE', credentials: 'include' }
+            );
+
+            if (!response.ok) {
+            const body = await response.json().catch(() => null);
+            throw new Error(body?.message || body?.error || 'Failed to delete comment.');
+            }
+
+            setComments(previous =>
+            previous.filter(comment => comment._id !== commentId)
+            );
+        } catch (error) {
+            setError(error.message);
+        } finally {
+            setDeletingId(null);
+        }
+    }
+
     return (
         <div className="comments-section">
             <h3>Comments</h3>
@@ -84,6 +111,15 @@ function Comments({ postId }){
                 <div key={comment._id} className="comment">
                     <strong>{comment.username}</strong>
                     <p>{comment.text}</p>
+                    {currentUsername && currentUsername === comment.username && (
+                        <button
+                            type="button"
+                            disabled={deletingId !== null}
+                            onClick={() => handleDelete(comment._id)}
+                        >
+                            {deletingId === comment._id ? 'Deleting…' : 'Delete comment'}
+                        </button>
+                    )}
                 </div>
             ))}
 
