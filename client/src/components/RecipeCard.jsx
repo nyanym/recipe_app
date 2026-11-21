@@ -3,7 +3,6 @@ import './RecipeCard.css';
 // Added by Satvik
 import { Link } from 'react-router-dom';
 
-
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
