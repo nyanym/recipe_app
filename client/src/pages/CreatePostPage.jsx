@@ -101,9 +101,6 @@ function CreatePostPage({ onPostCreated }) {
       formData.append('ingredients', JSON.stringify(content.ingredients));
       formData.append('instructions', content.instructions);
 
-      // fallback, remove later
-      // formData.append('content', content.trim());
-
       if (image) {
         formData.append('image', image); // matches upload.single('image') in posts.js
       }
