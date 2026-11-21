@@ -16,18 +16,6 @@ const isPosInt = (value) => {
   return value !== '' && Number.isInteger(n) && n >= 1;
 };
 
-{/* This section was added by Satvik */}
-// const stringifyRecipe = ({ servings, minutes, ingredients, instructions }) => {
-//   const ingredientsList = ingredients.map((item) => `- ${item}`).join('\n');
-//   return (
-//     `Servings: ${servings}\n` +
-//     `Minutes: ${minutes}\n\n` +
-//     `Ingredients:\n` +
-//     `${ingredientsList}\n\n` +
-//     `Instructions:\n ${instructions}`
-//   );
-// };
-
 function CreatePostPage({ onPostCreated }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
