@@ -98,6 +98,33 @@ function App() {
       }
   };
 
+  // save post
+  const handleSavePost = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${id}/save`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Failed to save post');
+        return;
+      }
+
+      // flip isSaved in state immediately so the button updates without a reload
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === id ? { ...post, isSaved: data.saved } : post
+        )
+      );
+    } catch (err) {
+      console.error('Error saving post:', err);
+    }
+  }
+
+
   // Create post
   const handleCreatePost = () => {
     navigate('/create-post');
@@ -129,6 +156,7 @@ function App() {
                 loading={loading}
                 onSearch={handleSearch}
                 onDeletePost={handleDeletePost}
+                onSavePost={handleSavePost}
               />
             }
           />
@@ -138,7 +166,14 @@ function App() {
           />
           <Route 
             path="/profile" 
-            element={<ProfilePage />} 
+            element={
+              <ProfilePage 
+                posts={posts}
+                loading={loading}
+                onDeletePost={handleDeletePost}
+                onSavePost={handleSavePost}
+              />
+            } 
           />
 
           { /* Added by Satvik */}

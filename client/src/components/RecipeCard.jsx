@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, isOwner }) {
+function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
   const filledStars = Math.round(rating);
 
   return (
@@ -41,6 +41,10 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, isOw
       {isOwner && (<button onClick={() => onDelete(id)} className="delete-btn">
         Delete
       </button>)}
+
+      <button onClick={() => onSaveRecipe(id)} className='save-btn'>
+        {isSaved ? 'Saved ★' : 'Save ☆'}
+      </button>
 
     </div>
   );

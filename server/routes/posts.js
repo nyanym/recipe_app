@@ -2,6 +2,7 @@ const express = require('express');
 const Post = require('../models/Post');
 const multer = require('multer');
 const router = express.Router();
+const User = require('../models/User');
 
 // store uploaded file in memory
 const upload = multer({
@@ -63,6 +64,39 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
+// save/unsave a post for the logged-in user
+router.post('/:id/save', async (req, res) => {
+  try {
+    const user = await User.findById(req.session.userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    if (!user.savedPosts) {
+      user.savedPosts = [];
+    }
+
+    const postId = req.params.id;
+    const alreadySaved = user.savedPosts.some((id) => String(id) === String(postId));
+
+    if (alreadySaved) {
+      user.savedPosts.pull(postId);     // Unsave
+    } else {
+      user.savedPosts.addToSet(postId); // Save
+    }
+
+    await user.save();
+
+    res.json({
+      saved: !alreadySaved,
+      postId,
+    });
+  } catch (err) {
+    console.error('Error toggling save post:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 
 // list all posts, or filter by search query (newest first)
 router.get('/', async (req, res) => {
@@ -86,15 +120,24 @@ router.get('/', async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    const postsWithOwnership = posts.map((post) => ({
+    let savedSet = new Set();   // make sure cleanup later
+    if (req.session.userId) {
+      const currentUser = await User.findById(req.session.userId).select('savedPosts').lean();
+      if (currentUser?.savedPosts) {
+        savedSet = new Set(currentUser.savedPosts.map((id) => String(id)));
+      }
+    }
+
+    const postsWithFlags = posts.map((post) => ({
       ...post,
       isOwner: Boolean(
         req.session.userId &&
         String(post.author?._id) === String(req.session.userId)
       ),
+      isSaved: savedSet.has(String(post._id)),
     }));
 
-    res.json(postsWithOwnership);
+    res.json(postsWithFlags);
   } catch (err) {
     console.error('Error fetching posts:', err);
     res.status(500).json({ error: 'Server error' });
