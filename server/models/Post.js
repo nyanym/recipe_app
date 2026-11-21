@@ -22,11 +22,10 @@ const postSchema = new mongoose.Schema(
         message: `Title must have at least 1 word and fewer than ${MAX_TITLE_WORDS} words`,
       },
     },
-    content: {
-      type: String,
-      required: [true, 'Content is required'],
-      trim: true,
-    },
+    servings: { type: Number, default: 1 },
+    minutes: { type: Number, default: 0 },
+    ingredients: { type: [String], default: [] },
+    instructions: { type: String, required: true },
     image: {
       data: Buffer,
       contentType: String,
