@@ -54,6 +54,9 @@ app.get('/api/message', (req, res) => {
 // Posts API (create + list)
 app.use('/api/posts', postRoutes);
 
+// checklist
+app.use('/api/checklists', require('./routes/checklist'));
+
 // Don't cache authentication information
 app.use('/api/auth', (req, res, next) => {
     res.set('Cache-Control', 'no-store');
