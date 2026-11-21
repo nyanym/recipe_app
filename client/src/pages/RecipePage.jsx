@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import Comments from '../components/Comments';
+import { useAuth } from '../context/AuthContext';
 
 function getRecipeFields(post) {
   if (!post) {
@@ -21,6 +23,7 @@ function RecipePage({ posts, loading, currentUser}) {
     const navigate = useNavigate();
     const [isChecklistOpen, setIsChecklistOpen] = useState(false);
     const [checkedIndices, setCheckedIndices] = useState(() => new Set());
+    const { user } = useAuth();
 
     const post = posts.find((p) => p._id === id);
     const postId = post?._id;
@@ -173,6 +176,12 @@ function RecipePage({ posts, loading, currentUser}) {
                     
             </div>
         )}
+
+            <Comments
+            key={post._id}
+            postId={post._id}
+            currentUsername={user?.username}
+            />
         </div>
     );
 }

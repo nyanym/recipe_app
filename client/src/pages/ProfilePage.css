@@ -1,6 +1,16 @@
 .profile-wrapper {
-  max-width: 600px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
   text-align: left;
+}
+
+.profile-main,
+.profile-saved {
+  min-width: 0; /* prevent grid items from overflowing horizontally */
 }
 
 /* round picture frame */
@@ -29,8 +39,13 @@
   margin-bottom: 0.75rem;
 }
 
-.profile-recipes {
+.profile-recipes,
+.saved-recipes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
 }

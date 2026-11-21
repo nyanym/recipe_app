@@ -14,6 +14,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    savedPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+      }
+    ],
   },
 );
 
