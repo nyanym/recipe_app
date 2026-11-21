@@ -93,7 +93,8 @@ router.get("/me", async (req, res) => {
 
         res.status(200).json({
             user: {
-                username: user.username
+                username: user.username,
+                id: user._id,
             }
         });
     }
