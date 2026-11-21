@@ -144,7 +144,11 @@ function App() {
           { /* Added by Satvik */}
           <Route
             path="/recipes/:id"
-            element={<RecipePage posts={posts} loading={loading} />}
+            element={<RecipePage 
+              posts={posts} 
+              loading={loading} 
+              currentUser={user}
+            />}
           />
         </Route>
       </Route>
