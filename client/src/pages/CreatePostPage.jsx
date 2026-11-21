@@ -17,16 +17,16 @@ const isPosInt = (value) => {
 };
 
 {/* This section was added by Satvik */}
-const stringifyRecipe = ({ servings, minutes, ingredients, instructions }) => {
-  const ingredientsList = ingredients.map((item) => `- ${item}`).join('\n');
-  return (
-    `Servings: ${servings}\n` +
-    `Minutes: ${minutes}\n\n` +
-    `Ingredients:\n` +
-    `${ingredientsList}\n\n` +
-    `Instructions:\n ${instructions}`
-  );
-};
+// const stringifyRecipe = ({ servings, minutes, ingredients, instructions }) => {
+//   const ingredientsList = ingredients.map((item) => `- ${item}`).join('\n');
+//   return (
+//     `Servings: ${servings}\n` +
+//     `Minutes: ${minutes}\n\n` +
+//     `Ingredients:\n` +
+//     `${ingredientsList}\n\n` +
+//     `Instructions:\n ${instructions}`
+//   );
+// };
 
 function CreatePostPage({ onPostCreated }) {
   const navigate = useNavigate();
@@ -99,7 +99,7 @@ function CreatePostPage({ onPostCreated }) {
 
     try {
       // This section was added by Satvik
-      const content = stringifyRecipe({
+      const content = ({
         servings: Number(servings),
         minutes: Number(minutes),
         ingredients: ingredientsList,
@@ -108,7 +108,14 @@ function CreatePostPage({ onPostCreated }) {
 
       const formData = new FormData();
       formData.append('title', title.trim());
-      formData.append('content', content.trim());
+      formData.append('servings', String(content.servings));
+      formData.append('minutes', String(content.minutes));
+      formData.append('ingredients', JSON.stringify(content.ingredients));
+      formData.append('instructions', content.instructions);
+
+      // fallback, remove later
+      // formData.append('content', content.trim());
+
       if (image) {
         formData.append('image', image); // matches upload.single('image') in posts.js
       }
