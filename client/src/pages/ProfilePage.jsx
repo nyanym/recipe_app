@@ -1,6 +1,6 @@
 import './ProfilePage.css';
 import RecipeCard from '../components/RecipeCard';
-
+import { useAuth } from '../context/AuthContext';
 
 // temp info until we can read actual recipes users made
 const sampleRecipes = [
@@ -10,16 +10,8 @@ const sampleRecipes = [
   { id: 4, title: 'Pear', imageUrl: null, rating: 2, likes: 230 },
 ];
 
-// temp info until we can read actual user info
-const sampleUser = {
-  username: 'GordanChefMan',
-  displayName: 'TheBigChef',
-  bio: 'I like food',
-  profilePicUrl: null,
-};
-
 function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
-  const user = sampleUser;
+  const { user } = useAuth();
   const recipes = sampleRecipes;
 
   const savedPosts = posts.filter((post) => post.isSaved);
@@ -32,7 +24,7 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
           {user.profilePicUrl && <img src={user.profilePicUrl} alt={user.username} />}
         </div>
 
-        <h2>{user.displayName}</h2>
+        <h2>{user.displayName || user.username}</h2>
         <p className="profile-username">@{user.username}</p>
         <p>{user.bio}</p>
 
