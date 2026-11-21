@@ -5,22 +5,33 @@ import './CreatePostPage.css';
 const MAX_TITLE_WORDS = 21; // title word count limit
 const MAX_CONTENT_CHARS = 300; // description char count limit
 
-//split by spaces
+// split by spaces
 const countWords = (text) => {
   const trimmed = text.trim();
   return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
 };
 
+// check if a positive whole number (Satvik)
+const isPosInt = (value) => {
+  const n = Number(value);
+  return value !== '' && Number.isInteger(n) && n >= 1;
+};
+
 function CreatePostPage({ onPostCreated }) {
   const navigate = useNavigate();
   const [title, setTitle] = useState('');
-  const [content, setContent] = useState(''); // description
+  const [content, setContent] = useState(''); // short description
   const [ingredients, setIngredients] = useState([
     { id: 0, quantity: '', name: '' },
   ]);
   const [steps, setSteps] = useState([{ id: 1, text: '' }]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Added by Satvik
+  const [servings, setServings] = useState('1');
+  const [minutes, setMinutes] = useState('10');
+  const [image, setImage] = useState(null);
 
   const nextId = useRef(2); // unique ids for rows
   const pendingFocus = useRef(null); // element id to focus after a row is added
@@ -115,6 +126,14 @@ function CreatePostPage({ onPostCreated }) {
       setError(`Description must be ${MAX_CONTENT_CHARS} characters or fewer.`);
       return;
     }
+    if (!isPosInt(servings)) {
+      setError('Servings must be a whole number of at least one.');
+      return;
+    }
+    if (!isPosInt(minutes)) {
+      setError('Minutes must be a whole number of at least one.');
+      return;
+    }
     if (cleanIngredients.length === 0) {
       setError('Add at least one ingredient.');
       return;
@@ -131,25 +150,32 @@ function CreatePostPage({ onPostCreated }) {
     setIsSubmitting(true);
 
     try {
+      // multipart form so the optional image can be sent too (matches upload.single('image'))
+      const formData = new FormData();
+      formData.append('title', title.trim());
+      formData.append('content', content.trim());
+      formData.append('servings', String(Number(servings)));
+      formData.append('minutes', String(Number(minutes)));
+      // lists go as JSON text; the server parses them back into arrays
+      formData.append('ingredients', JSON.stringify(cleanIngredients));
+      formData.append('instructions', JSON.stringify(cleanSteps));
+      if (image) {
+        formData.append('image', image);
+      }
+
+      // no Content-Type header here: the browser sets it (with the boundary) for FormData
       const response = await fetch('http://localhost:5000/api/posts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: title.trim(),
-          content: content.trim(),
-          ingredients: cleanIngredients,
-          instructions: cleanSteps,
-        }),
+        credentials: 'include', // send the login cookie
+        body: formData,
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to create post');
+        throw new Error(data.error || `Server responded with ${response.status}`);
       }
 
-      // update dashboard to display most recept post
+      // update dashboard to display most recent post
       if (onPostCreated) {
         onPostCreated();
       }
@@ -211,6 +237,32 @@ function CreatePostPage({ onPostCreated }) {
             rows="3"
             maxLength={MAX_CONTENT_CHARS}
             className="form-textarea"
+          />
+        </div>
+
+        {/* Added by Satvik */}
+        <div className="form-group">
+          <label className="form-label">Servings</label>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={servings}
+            onChange={(e) => setServings(e.target.value)}
+            className="form-input"
+          />
+        </div>
+
+        {/* Added by Satvik */}
+        <div className="form-group">
+          <label className="form-label">Minutes</label>
+          <input
+            type="number"
+            min="1"
+            step="1"
+            value={minutes}
+            onChange={(e) => setMinutes(e.target.value)}
+            className="form-input"
           />
         </div>
 
@@ -283,6 +335,16 @@ function CreatePostPage({ onPostCreated }) {
           <button type="button" onClick={addStep} className="profile-btn">
             + Add step
           </button>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Recipe Image (Optional)</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files[0] || null)}
+            className="form-input"
+          />
         </div>
 
         <div className="form-actions">

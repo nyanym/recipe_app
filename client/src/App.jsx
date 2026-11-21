@@ -2,14 +2,17 @@ import { useEffect, useState } from 'react'
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import './App.css'
 
-import SearchBar from './SearchBar';
-import PostButton from './Post-btn';
-import CreatePostPage from './CreatePostPage';
+import CreatePostPage from './pages/CreatePostPage';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
-import RecipeCard from './RecipeCard';
+import AppLayout from './layouts/AppLayout';
+import Dashboard from './pages/Dashboard';
+import ProfilePage from './pages/ProfilePage';
+
+// Added by Satvik
+import RecipePage from './pages/RecipePage';
 
 function App() {
   const navigate = useNavigate();
@@ -30,7 +33,6 @@ function App() {
   // for message
   const [posts, setPosts] = useState([]);       // posts
   const [loading, setLoading] = useState(true); // posts
-  const [isOpen, setIsOpen] = useState(true);   // sidebar
 
   // search filters
   const [titleQuery, setTitleQuery] = useState('');           // matches title only
@@ -45,7 +47,7 @@ function App() {
     }
   }, [location.pathname]);
 
-  // grab posts whenever a filter changes (or a refresh is requested)
+  // grab posts whenever a filter changes, a refresh is requested, or the user changes
   useEffect(() => {
     let cancelled = false;
 
@@ -58,7 +60,8 @@ function App() {
         const queryString = params.toString();
 
         const res = await fetch(
-          `http://localhost:5000/api/posts${queryString ? `?${queryString}` : ''}`
+          `http://localhost:5000/api/posts${queryString ? `?${queryString}` : ''}`,
+          { credentials: 'include' }
         );
         const data = await res.json();
 
@@ -81,7 +84,7 @@ function App() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, [titleQuery, ingredientQuery, refreshKey]);
+  }, [titleQuery, ingredientQuery, refreshKey, user]);
 
   // used by CreatePostPage (onPostCreated) to refresh the list
   const fetchPosts = () => {
@@ -92,21 +95,20 @@ function App() {
     try {
       const res = await fetch(`http://localhost:5000/api/posts/${id}`, {
         method: 'DELETE',
+        credentials: 'include',
       });
 
-      if (res.ok) {
-        setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
-      } else {
-        const errorData = await res.json();
-        alert(`Failed to delete: ${errorData.error}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(`Failed to delete: ${data.error}`);
+        return;
       }
+
+      setPosts((prevPosts) => prevPosts.filter((post) => post._id !== id));
     } catch (err) {
       console.error('Error deleting post:', err);
     }
-  };
-
-  const toggleSidebar = () => {
-    setIsOpen((prev) => !prev);
   };
 
   // SearchBar (title)
@@ -119,6 +121,33 @@ function App() {
     setIngredientQuery(ingredientTerm);
   };
 
+  // save post
+  const handleSavePost = async (id) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/posts/${id}/save`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        alert(data.error || 'Failed to save post');
+        return;
+      }
+
+      // flip isSaved in state immediately so the button updates without a reload
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post._id === id ? { ...post, isSaved: data.saved } : post
+        )
+      );
+    } catch (err) {
+      console.error('Error saving post:', err);
+    }
+  }
+
+
   // Create post
   const handleCreatePost = () => {
     navigate('/create-post');
@@ -128,102 +157,60 @@ function App() {
   const filtersActive = titleQuery.trim() !== '' || ingredientQuery.trim() !== '';
 
   return (
-    <>
-      <div className="app-container">
-        {/* Conditionally apply the .open class based on state */}
-        <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-          <div className="sidebar-content">
+    <Routes>
+      {/* Public routes without the sidebar */}
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/login" element={<Login />} />
 
-            <div className="sidebar-header">
-              <div className="website">
-                <span className="website-icon">🫨</span>
-                <span className="website-name">Website Name</span>
-              </div>
+      {/* Protected routes with the sidebar layout */}
+      <Route element={<ProtectedRoute />}>
+        <Route
+          element={
+            <AppLayout
+              user={user}
+              onLogout={handleLogout}
+              onCreatePost={handleCreatePost}
+            />
+          }
+        >
+          <Route
+            path="/"
+            element={
+              <Dashboard
+                posts={posts}
+                loading={loading}
+                onSearch={handleSearch}
+                onIngredientSearch={handleIngredientSearch}
+                filtersActive={filtersActive}
+                onDeletePost={handleDeletePost}
+                onSavePost={handleSavePost}
+              />
+            }
+          />
+          <Route
+            path="/create-post"
+            element={<CreatePostPage onPostCreated={fetchPosts} />}
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProfilePage 
+                posts={posts}
+                loading={loading}
+                onDeletePost={handleDeletePost}
+                onSavePost={handleSavePost}
+              />
+            } 
+          />
 
-                <button onClick={toggleSidebar} className="toggle-btn">
-                  {isOpen ? '✕' : '❯'}
-                </button>
-            </div>
-
-            {/* side buttons */}
-            <div className="nav-item" onClick={() => navigate('/')}>
-              <span className="icon">📊</span>
-              {isOpen && <span className="label">Dashboard</span>}
-            </div>
-            
-            <div className="nav-item">
-              <PostButton onClick={handleCreatePost} isCollapsed={!isOpen}/>
-            </div>
-
-            <div className="nav-item">
-              <span className="icon">⚙️</span>
-              {isOpen && <span className="label">Settings</span>}
-            </div>
-            <div className="nav-item">
-              <span className="icon">👤</span>
-              {isOpen && <span className="label">Profile</span>}
-            </div>
-            {user && (
-              <div>
-                <p>Logged in as: {user.username}</p>
-                <button onClick={handleLogout}>
-                  Log Out
-                </button>
-              </div>
-            )}
-
-          </div>
-        </aside>
-
-        <main className="main-content">
-           <Routes>
-           
-           <Route path="/signup" element={<Signup />} />
-           <Route path="/login" element={<Login />} />
-
-           <Route element={<ProtectedRoute />}>
-           
-               <Route
-                path="/"
-                element={
-                  <>
-
-                    <div style={{ padding: '.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <SearchBar onSearch={handleSearch} placeholder="Search recipe titles..." />
-                      <SearchBar onSearch={handleIngredientSearch} placeholder="Ingredients (flour, eggs)..." />
-                    </div>
-
-                    <h2>Card Title</h2>
-                    <div className="feed-card">
-                      {loading ? (
-                        <p>Loading recipes...</p>
-                      ) : posts.length === 0 ? (
-                        <p>
-                          {filtersActive
-                            ? 'No recipes match your search.'
-                            : 'No recipes found. Create one!'}
-                        </p>
-                      ) : (
-                        posts.map((post) => (
-                          <RecipeCard 
-                            key={post._id} 
-                            id={post._id} 
-                            title={post.title} 
-                            content={post.content} 
-                            onDelete={handleDeletePost} 
-                          />
-                        ))
-                      )}
-                    </div>
-                  </>
-                  }
-                />
-                <Route path="/create-post" element={<CreatePostPage onPostCreated={fetchPosts} />} />
-           </Route>
-         </Routes>
-        </main>
-      </div>
-    </>
+          { /* Added by Satvik */}
+          <Route
+            path="/recipes/:id"
+            element={<RecipePage posts={posts} loading={loading} />}
+          />
+        </Route>
+      </Route>
+    </Routes>
   );
 }
 

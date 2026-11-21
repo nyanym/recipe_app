@@ -1,0 +1,51 @@
+.profile-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+  width: 100%;
+  max-width: 100%;
+  text-align: left;
+}
+
+.profile-main,
+.profile-saved {
+  min-width: 0; /* prevent grid items from overflowing horizontally */
+}
+
+/* round picture frame */
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  border: 2px solid #1e293b;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f1f5f9;
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-username {
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.profile-recipes,
+.saved-recipes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
+}

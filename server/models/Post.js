@@ -70,6 +70,15 @@ const postSchema = new mongoose.Schema(
         message: 'At least one instruction step is required, and steps cannot be empty',
       },
     },
+    image: {
+      data: Buffer,
+      contentType: String,
+    },
+    author: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    }
   },
   { timestamps: true }
 );

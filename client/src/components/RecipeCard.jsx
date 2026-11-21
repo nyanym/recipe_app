@@ -1,21 +1,32 @@
 import './RecipeCard.css';
 
+// Added by Satvik
+import { Link } from 'react-router-dom';
+
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ id, title, author, imageUrl, rating, likes, onDelete }) {
+function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
   const filledStars = Math.round(rating);
 
   return (
     <div className="recipe-card">
       <div className="recipe-card-cover">
-        {imageUrl
-          ? <img src={imageUrl} alt={title} />
-          : <span className="recipe-card-placeholder">🍳</span>}
+        {hasImage && (
+          <img
+            src={`http://localhost:5000/api/posts/${id}/image`}
+            alt={title}
+            className="recipe-image"
+          />
+        )}
       </div>
 
+      {/* Modifyed by Satvik */}
       <p className="recipe-card-title">
-        <strong>{title}</strong> by {author}
+        <Link to={`/recipes/${id}`}>
+          <strong>{title}</strong>
+        </Link>{' '}
+        by {author?.username || 'Unknown'}
       </p>
 
       <div className="recipe-card-meta">
@@ -27,9 +38,14 @@ function RecipeCard({ id, title, author, imageUrl, rating, likes, onDelete }) {
         <span className="recipe-card-likes">👍 {formatCount(likes)}</span>
       </div>
 
-      <button onClick={() => onDelete(id)} className="delete-btn">
+      {isOwner && (<button onClick={() => onDelete(id)} className="delete-btn">
         Delete
+      </button>)}
+
+      <button onClick={() => onSaveRecipe(id)} className='save-btn'>
+        {isSaved ? 'Saved ★' : 'Save ☆'}
       </button>
+
     </div>
   );
 }
