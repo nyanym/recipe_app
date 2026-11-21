@@ -1,9 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import Comments from '../components/Comments';
+import { useAuth } from '../context/AuthContext';
 
 function RecipePage({ posts, loading }) {
     // the id refers to the /recipe/:id
     const { id } = useParams();
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     if (loading) return <p>Loading recipe...</p>;
 
@@ -26,6 +29,12 @@ function RecipePage({ posts, loading }) {
 
             { /* keep the whitespace as is */}
             <p style = {{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+
+            <Comments
+            key={post._id}
+            postId={post._id}
+            currentUsername={user?.username}
+            />
         </div>
     );
 }
