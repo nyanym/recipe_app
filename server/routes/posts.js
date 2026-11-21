@@ -17,18 +17,24 @@ router.post('/', upload.single('image'), async (req, res) => {
       return res.status(401).json({ error: 'You must be logged in to post.' });
     }
 
-    const { title, content } = req.body; 
+    const { title, servings, minutes, ingredients, instructions } = req.body;
 
     // author
     const authorId = req.session.userId;
 
-    if (!title || !content) {
-      return res.status(400).json({ error: 'Title and content are required' });
+    if (!title || !instructions) {
+      return res.status(400).json({ error: 'Title and instructions are required' });
     }
+
+    const parsedIngredients =
+    typeof ingredients === 'string' ? JSON.parse(ingredients) : ingredients;
 
     const postData = {
       title,
-      content,
+      servings: Number(servings),
+      minutes: Number(minutes),
+      ingredients: Array.isArray(parsedIngredients) ? parsedIngredients : [],
+      instructions,
       author: authorId,
     };
 
