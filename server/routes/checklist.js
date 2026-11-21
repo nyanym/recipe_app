@@ -33,12 +33,15 @@ router.put('/:postId', async (req, res) => {
     const checkedIndices = Array.isArray(req.body.checkedIndices)
       ? req.body.checkedIndices.filter((n) => Number.isInteger(n) && n >= 0)
       : [];
-    const updated = await Checklist.findOneAndUpdate(
+        const updated = await Checklist.findOneAndUpdate(
       { user: req.session.userId, post: req.params.postId },
-      { $set: { checkedIndices } },
+      { 
+        $set: { checkedIndices },
+        $setOnInsert: { user: req.session.userId, post: req.params.postId },
+      },
       { upsert: true, new: true, runValidators: true }
     ).lean();
-    res.json({ checkedIndices: updated.checkedIndices });
+    res.json({ checkedIndices: updated ? updated.checkedIndices : [] });
   } catch (err) {
     console.error('Error saving checklist:', err);
     res.status(500).json({ error: 'Server error' });

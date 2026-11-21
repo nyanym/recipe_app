@@ -21,7 +21,6 @@ function RecipePage({ posts, loading, currentUser}) {
     // the id refers to the /recipe/:id
     const { id } = useParams();
     const navigate = useNavigate();
-    const [isChecklistOpen, setIsChecklistOpen] = useState(false);
     const [checkedIndices, setCheckedIndices] = useState(() => new Set());
     const { user } = useAuth();
 
@@ -63,19 +62,19 @@ function RecipePage({ posts, loading, currentUser}) {
     if (loading) return <p>Loading recipe...</p>;
     if (!post) return <p>Recipe not found.</p>;
 
-      const recipe = getRecipeFields(post);
+    const recipe = getRecipeFields(post);
 
     const persistChecked = async (nextSet) => {
         const arr = Array.from(nextSet);
         try {
-        const res = await fetch(`http://localhost:5000/api/checklists/${post._id}`, {
+        const res = await fetch(`http://localhost:5000/api/checklists/${postId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ checkedIndices: arr }),
         });
         if (res.status === 401) {
-            localStorage.setItem(`checklist_guest_${post._id}`, JSON.stringify(arr));
+            localStorage.setItem(`checklist_guest_${postId}`, JSON.stringify(arr));
         } else if (!res.ok) {
             console.error('Checklist PUT failed:', res.status, await res.text());
         }
@@ -93,29 +92,16 @@ function RecipePage({ posts, loading, currentUser}) {
     
     const totalCount = recipe.ingredients.length;
     const checkedCount = recipe.ingredients.filter((_, i) => checkedIndices.has(i)).length;
-    const missingCount = totalCount - checkedCount;
-    const allChecked = totalCount > 0 && missingCount === 0;
+
+    const hasIngredients = Array.isArray(post.ingredients) && post.ingredients.length > 0;
+    const hasInstructions = Array.isArray(post.instructions) && post.instructions.length > 0;
+    // posts made before the ingredient split keep the whole recipe in content
 
     return (
         <div className="recipe-page">
             <button onClick={() => navigate('/')}>Back</button>
 
             <h2>{post.title}</h2>
-            
-            <button
-                type="button"
-                className="ingredients-btn"
-                onClick={() => setIsChecklistOpen(true)}
-            >
-                Ingredients
-                {totalCount > 0 && (
-                    <span
-                    className={`ingredients-badge ${allChecked ? 'is-complete' : 'is-missing'}`}
-                    >
-                    {allChecked ? '✓' : missingCount}
-                    </span>
-                )}
-            </button>
 
             <p className="recipe-meta">
                 Servings: {recipe.servings} • Time: {recipe.minutes} min
@@ -129,53 +115,55 @@ function RecipePage({ posts, loading, currentUser}) {
                 />
             )}
 
-            <h3>Instructions</h3>
-            <p className="recipe-instructions">{recipe.instructions}</p>
+            { /* short description (or the whole recipe text for old posts); keep the whitespace as is */}
+            {post.content && (
+                <p style = {{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+            )}
 
-            {isChecklistOpen && (
-                <div
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label="Ingredients Checklist"
-                    className="checklist-modal"
-                >
-                <div className="checklist-header">
+            {/* Ingredients Checklist */}
+            {totalCount > 0 && (
+                <div className="ingredients-checklist">
                     <h3>
                         Ingredients ({checkedCount}/{totalCount} checked)
                     </h3>
-                        <button type="button" onClick={() => setIsChecklistOpen(false)}>
-                            Close
-                        </button>
+                    <ul className="checklist-list">
+                        {recipe.ingredients.map((item, idx) => {
+                            const isChecked = checkedIndices.has(idx);
+                            const label =
+                                typeof item === 'string'
+                                    ? item
+                                    : `${item.quantity || item.amount || ''} ${item.name || item.ingredient || ''}`.trim();
+                            return (
+                                <li key={idx} className="checklist-item">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleIngredient(idx)}
+                                        aria-pressed={isChecked}
+                                        className={`checklist-toggle ${isChecked ? 'is-checked' : ''}`}
+                                    >
+                                        <span>
+                                            {isChecked ? '☑ ' : '☐ '}
+                                            {label}
+                                        </span>
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
                 </div>
+            )}
 
-                <ul className="checklist-list">
-                    {recipe.ingredients.map((item, idx) => {
-                        const isChecked = checkedIndices.has(idx);
-                        const label =
-                            typeof item === 'string'
-                            ? item
-                            : `${item.amount ? `${item.amount} ` : ''}${item.name || item.ingredient || ''}`;
-
-                        return (
-                            <li key={idx} className="checklist-item">
-                            <button
-                                type="button"
-                                onClick={() => toggleIngredient(idx)}
-                                aria-pressed={isChecked}
-                                className={`checklist-toggle ${isChecked ? 'is-checked' : ''}`}
-                            >
-                                <span>
-                                {isChecked ? '☑ ' : '☐ '}
-                                {label}
-                                </span>
-                            </button>
-                            </li>
-                        );
-                    })}
-                </ul>
-                    
-            </div>
-        )}
+            {/* Instructions List */}
+            {hasInstructions && (
+                <>
+                    <h3>Instructions</h3>
+                    <ol>
+                        {post.instructions.map((step, index) => (
+                            <li key={index}>{step}</li>
+                        ))}
+                    </ol>
+                </>
+            )}
 
             <Comments
             key={post._id}
@@ -187,4 +175,3 @@ function RecipePage({ posts, loading, currentUser}) {
 }
 
 export default RecipePage;
-
