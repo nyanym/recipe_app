@@ -10,26 +10,45 @@ const upload = multer({
   limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
 });
 
+// when user searches special characters, treats as plain text
+const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// ingredients/instructions arrive as real arrays from a JSON request,
+// but as JSON strings if the form is ever sent as multipart (image upload)
+const parseListField = (value) => {
+  if (typeof value !== 'string') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+};
+
 // create a new post
-router.post('/', upload.single('image'), async (req, res) => {  
+router.post('/', upload.single('image'), async (req, res) => {
   try {
     // block unauthenticated users
     if (!req.session.userId) {
       return res.status(401).json({ error: 'You must be logged in to post.' });
     }
 
-    const { title, content } = req.body; 
+    const { title, content } = req.body;
+    const ingredients = parseListField(req.body.ingredients);
+    const instructions = parseListField(req.body.instructions);
 
     // author
     const authorId = req.session.userId;
 
-    if (!title || !content) {
-      return res.status(400).json({ error: 'Title and content are required' });
+    if (!title) {
+      return res.status(400).json({ error: 'Title is required' });
     }
 
+    // the model validates title length, ingredients, and instructions
     const postData = {
       title,
       content,
+      ingredients,
+      instructions,
       author: authorId,
     };
 
@@ -45,7 +64,6 @@ router.post('/', upload.single('image'), async (req, res) => {
     const savedPost = await newPost.save();
 
     await savedPost.populate('author', 'username');
-
 
     // return post
     const responsePost = savedPost.toObject();
@@ -97,22 +115,37 @@ router.post('/:id/save', async (req, res) => {
   }
 });
 
-
-// list all posts, or filter by search query (newest first)
+// list all posts (newest first)
+//   ?search=pasta            -> title contains "pasta"
+//   ?ingredient=flour        -> has an ingredient containing "flour"
+//   ?ingredient=flour,eggs   -> has BOTH (comma separated)
+// search and ingredient can be combined
 router.get('/', async (req, res) => {
   try {
-    const { search } = req.query;
-    let query = {};
+    const { search, ingredient } = req.query;
+    const conditions = [];
 
-    if (search) {
-      // case-insensitive regex matching title or content
-      query = {
-        $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { content: { $regex: search, $options: 'i' } }
-        ]
-      };
+    if (search && search.trim() !== '') {
+      // case-insensitive match on title only
+      conditions.push({
+        title: { $regex: escapeRegex(search.trim()), $options: 'i' },
+      });
     }
+
+    if (ingredient && ingredient.trim() !== '') {
+      // every listed ingredient must match at least one ingredient name
+      ingredient
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item !== '')
+        .forEach((item) => {
+          conditions.push({
+            'ingredients.name': { $regex: escapeRegex(item), $options: 'i' },
+          });
+        });
+    }
+
+    const query = conditions.length > 0 ? { $and: conditions } : {};
 
     const posts = await Post.find(query)
       .select('-image.data')
@@ -171,7 +204,11 @@ router.delete('/:id', async (req, res) => {
     }
 
     // check if user is author
-    if (!post.author || post.author.toString() !== req.session.userId.toString()) {
+    if (
+      !req.session.userId ||
+      !post.author ||
+      post.author.toString() !== req.session.userId.toString()
+    ) {
       return res.status(403).json({ error: 'You can only delete your own posts.' });
     }
 

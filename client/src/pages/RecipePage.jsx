@@ -13,6 +13,11 @@ function RecipePage({ posts, loading }) {
     const post = posts.find((p) => p._id === id);
     if (!post) return <p>Recipe not found.</p>;
 
+    const hasIngredients = Array.isArray(post.ingredients) && post.ingredients.length > 0;
+    const hasInstructions = Array.isArray(post.instructions) && post.instructions.length > 0;
+    // posts made before the ingredient split keep the whole recipe in content
+    const isOldFormat = !hasIngredients && !hasInstructions;
+
     return (
         <div className="recipe-page">
             <button onClick={() => navigate('/')}>Back</button>
@@ -27,8 +32,44 @@ function RecipePage({ posts, loading }) {
                 />
             )}
 
-            { /* keep the whitespace as is */}
-            <p style = {{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+            {(post.servings || post.minutes) && (
+                <p>
+                    {post.servings ? `Servings: ${post.servings}` : ''}
+                    {post.servings && post.minutes ? ' · ' : ''}
+                    {post.minutes ? `Minutes: ${post.minutes}` : ''}
+                </p>
+            )}
+
+            { /* short description (or the whole recipe text for old posts); keep the whitespace as is */}
+            {post.content && (
+                <p style = {{ whiteSpace: 'pre-wrap' }}>{post.content}</p>
+            )}
+
+            {hasIngredients && (
+                <>
+                    <h3>Ingredients</h3>
+                    <ul>
+                        {post.ingredients.map((item, index) => (
+                            <li key={index}>
+                                {item.quantity} {item.name}
+                            </li>
+                        ))}
+                    </ul>
+                </>
+            )}
+
+            {hasInstructions && (
+                <>
+                    <h3>Instructions</h3>
+                    <ol>
+                        {post.instructions.map((step, index) => (
+                            <li key={index}>{step}</li>
+                        ))}
+                    </ol>
+                </>
+            )}
+
+            {isOldFormat && !post.content && <p>This recipe has no details.</p>}
 
             <Comments
             key={post._id}
@@ -40,4 +81,3 @@ function RecipePage({ posts, loading }) {
 }
 
 export default RecipePage;
-
