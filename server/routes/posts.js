@@ -69,19 +69,22 @@ router.post('/', upload.single('image'), async (req, res) => {
   }
 });
 
-
 // list all posts, or filter by search query (newest first)
 router.get('/', async (req, res) => {
   try {
     const { search } = req.query;
     let query = {};
 
+
     if (search) {
       // case-insensitive regex matching title or content
+      const regex = { $regex: search, $options: 'i' };
       query = {
         $or: [
-          { title: { $regex: search, $options: 'i' } },
-          { content: { $regex: search, $options: 'i' } }
+          { title: regex },
+          { content: regex },
+          { ingredients: regex },
+          { instructions: regex },
         ]
       };
     }
