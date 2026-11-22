@@ -35,6 +35,8 @@ export default function DashboardPage({
         author={post.author}
         isOwner={post.isOwner}
         isSaved={post.isSaved}
+        rating={post.rating}
+        ratingCount={post.ratingCount}
         onSaveRecipe={onSavePost}
       />
     ));

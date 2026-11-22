@@ -65,6 +65,7 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
                 hasImage={Boolean(post.image?.contentType)}
                 author={post.author}
                 rating={post.rating}
+                ratingCount={post.ratingCount}
                 likes={post.likes}
                 isOwner={post.isOwner}
                 isSaved={post.isSaved}

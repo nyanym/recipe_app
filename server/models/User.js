@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema(
         ref: 'Post',
       }
     ],
-    displayName: {
+        displayName: {
       type: String,
       maxlength: 50,
       default: '',
@@ -34,6 +34,19 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: '',
     },
+    ratedPosts: [
+      {
+        post: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Post',
+        },
+        value: {
+          type: Number,
+          min: 1,
+          max: 5
+        },
+      }
+    ],
   },
 );
 

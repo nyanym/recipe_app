@@ -149,6 +149,15 @@ function App() {
   }
 
 
+  // Rate post
+  const handleRatingChange = ({ postId, rating, ratingCount, myRating }) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post._id === postId ? { ...post, rating, ratingCount, myRating } : post
+      )
+    );
+  };
+
   // Create post
   const handleCreatePost = () => {
     navigate('/create-post');
@@ -216,6 +225,7 @@ function App() {
               posts={posts} 
               loading={loading} 
               currentUser={user}
+              onRatingChange={handleRatingChange}
             />}
           />
         </Route>

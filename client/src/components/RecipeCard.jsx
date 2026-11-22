@@ -1,16 +1,20 @@
 import './RecipeCard.css';
 
 // Added by Satvik
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
+function RecipeCard({ id, title, author, hasImage, rating = 0, ratingCount, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
   const filledStars = Math.round(rating);
 
+  const navigate = useNavigate();
+  const openRecipe = () => navigate(`/recipes/${id}`);
+
   return (
-    <div className="recipe-card">
+    <div className="recipe-card" onClick={openRecipe}>
       <div className="recipe-card-cover">
         {hasImage && (
           <img
@@ -23,10 +27,7 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSa
 
       {/* Modifyed by Satvik */}
       <p className="recipe-card-title">
-        <Link to={`/recipes/${id}`}>
-          <strong>{title}</strong>
-        </Link>{' '}
-        by {author?.username || 'Unknown'}
+        <strong>{title}</strong> by {author?.username || 'Unknown'}
       </p>
 
       <div className="recipe-card-meta">
@@ -35,14 +36,22 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSa
             <span key={i} className={i < filledStars ? 'star filled' : 'star'}>★</span>
           ))}
         </span>
+        {ratingCount !== undefined && (
+          <span className="recipe-card-rating-count">
+            {ratingCount > 0 ? `${rating.toFixed(1)} (${ratingCount})` : 'No ratings'}
+          </span>
+        )}
         <span className="recipe-card-likes">👍 {formatCount(likes)}</span>
       </div>
 
-      {isOwner && (<button onClick={() => onDelete(id)} className="delete-btn">
+      {isOwner &&
+      (<button onClick={(e) => {e.stopPropagation(); onDelete(id);}} 
+        className="delete-btn">
         Delete
       </button>)}
 
-      <button onClick={() => onSaveRecipe(id)} className='save-btn'>
+      <button onClick={(e) => {e.stopPropagation(); onSaveRecipe(id);}} 
+        className='save-btn'>
         {isSaved ? 'Saved ★' : 'Save ☆'}
       </button>
 
