@@ -20,6 +20,20 @@ const userSchema = new mongoose.Schema(
         ref: 'Post',
       }
     ],
+    displayName: {
+      type: String,
+      maxlength: 50,
+      default: '',
+    },
+    bio: {
+      type: String,
+      maxlength: 500,
+      default: '',
+    },
+    profilePicUrl: {
+      type: String,
+      default: '',
+    },
   },
 );
 

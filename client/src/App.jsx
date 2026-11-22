@@ -10,6 +10,7 @@ import { useAuth } from './context/AuthContext';
 import AppLayout from './layouts/AppLayout';
 import Dashboard from './pages/Dashboard';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
 
 // Added by Satvik
 import RecipePage from './pages/RecipePage';
@@ -200,7 +201,12 @@ function App() {
                 onDeletePost={handleDeletePost}
                 onSavePost={handleSavePost}
               />
-            } 
+            }
+          />
+          <Route 
+            path="/profile/edit" 
+            element={<EditProfilePage 
+            />} 
           />
 
           { /* Added by Satvik */}

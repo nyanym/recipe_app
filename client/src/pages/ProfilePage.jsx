@@ -1,6 +1,7 @@
 import './ProfilePage.css';
 import RecipeCard from '../components/RecipeCard';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 // temp info until we can read actual recipes users made
 const sampleRecipes = [
@@ -12,6 +13,7 @@ const sampleRecipes = [
 
 function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const recipes = sampleRecipes;
 
   const savedPosts = posts.filter((post) => post.isSaved);
@@ -27,6 +29,7 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
         <h2>{user.displayName || user.username}</h2>
         <p className="profile-username">@{user.username}</p>
         <p>{user.bio}</p>
+        <button onClick={() => navigate('/profile/edit')}>Edit Profile</button>
 
         <h3 className="profile-section-title">Recipes</h3>
         <div className="profile-recipes">

@@ -65,7 +65,12 @@ router.post("/login", async (req, res) => {
 
         res.status(200).json({
             message: "Login successful",
-            user: {username: user.username}     
+            user: {
+                username: user.username,
+                displayName: user.displayName,
+                bio: user.bio,
+                profilePicUrl: user.profilePicUrl,
+            }     
         });
 
     } catch (error) {
@@ -83,7 +88,7 @@ router.get("/me", async (req, res) => {
             });
         }
 
-        const user = await User.findById(req.session.userId).select("username");
+        const user = await User.findById(req.session.userId).select("username displayName bio profilePicUrl");
 
         if (!user) {
             return res.status(401).json({
@@ -95,6 +100,9 @@ router.get("/me", async (req, res) => {
             user: {
                 username: user.username,
                 id: user._id,
+                displayName: user.displayName,
+                bio: user.bio,
+                profilePicUrl: user.profilePicUrl,
             }
         });
     }
@@ -124,5 +132,38 @@ router.post('/logout', (req, res) => {
     });
 });
 
+// When you update profile info
+router.put("/me", async (req, res) => {
+    try {
+        if (!req.session.userId) {
+            return res.status(401).json({
+                message: "Not authenticated"
+            });
+        }
+
+        const { displayName, bio, profilePicUrl } = req.body; 
+        
+        const user = await User.findByIdAndUpdate(
+            req.session.userId,
+            { displayName, bio, profilePicUrl },
+            { new: true, runValidators: true }
+        );
+
+        res.status(200).json({
+            user: {
+                username: user.username,
+                id: user._id,
+                displayName: user.displayName,
+                bio: user.bio,
+                profilePicUrl: user.profilePicUrl,
+            }
+        });
+    }
+    catch(err){
+        res.status(500).json({
+            message: "Server error"
+        });
+    }
+});
 
 module.exports = router;
