@@ -20,6 +20,19 @@ const userSchema = new mongoose.Schema(
         ref: 'Post',
       }
     ],
+    ratedPosts: [
+      {
+        post: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Post',
+        },
+        value: {
+          type: Number,
+          min: 1,
+          max: 5
+        },
+      }
+    ],
   },
 );
 

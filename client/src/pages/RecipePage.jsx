@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Comments from '../components/Comments';
+import StarRating from '../components/StarRating';
 import { useAuth } from '../context/AuthContext';
 
 function getRecipeFields(post) {
@@ -17,12 +18,14 @@ function getRecipeFields(post) {
   };
 }
 
-function RecipePage({ posts, loading, currentUser}) {
+function RecipePage({ posts, loading, currentUser, onRatingChange}) {
     // the id refers to the /recipe/:id
     const { id } = useParams();
     const navigate = useNavigate();
     const [checkedIndices, setCheckedIndices] = useState(() => new Set());
     const { user } = useAuth();
+    const [ratingSaving, setRatingSaving] = useState(false);
+    const [ratingError, setRatingError] = useState('');
 
     const post = posts.find((p) => p._id === id);
     const postId = post?._id;
@@ -90,6 +93,33 @@ function RecipePage({ posts, loading, currentUser}) {
         persistChecked(next);
     };
     
+    const handleRate = async (value) => {
+        setRatingSaving(true);
+        setRatingError('');
+        try {
+            const res = await fetch(`http://localhost:5000/api/posts/${postId}/rating`, {
+                method: value === null ? 'DELETE' : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: value === null ? undefined : JSON.stringify({ value }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setRatingError(data.error || 'Could not save your rating.');
+                return;
+            }
+            onRatingChange?.(data);
+        } catch (err) {
+            console.error('Network error saving rating:', err);
+            setRatingError('Could not save your rating.');
+        } finally {
+            setRatingSaving(false);
+        }
+    };
+
+    const ratingAverage = Number(post.rating) || 0;
+    const ratingCount = Number(post.ratingCount) || 0;
+
     const totalCount = recipe.ingredients.length;
     const checkedCount = recipe.ingredients.filter((_, i) => checkedIndices.has(i)).length;
 
@@ -106,6 +136,49 @@ function RecipePage({ posts, loading, currentUser}) {
             <p className="recipe-meta">
                 Servings: {recipe.servings} • Time: {recipe.minutes} min
             </p>
+
+            <div className="recipe-rating">
+                <div
+                    className="recipe-rating-average"
+                    aria-label={`Rated ${ratingAverage} out of 5 by ${ratingCount} people`}
+                >
+                    <span>
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <span
+                                key={star}
+                                className={star <= Math.round(ratingAverage) ? 'star filled' : 'star'}
+                            >
+                                ★
+                            </span>
+                        ))}
+                    </span>
+                    <span>
+                        {ratingCount > 0
+                            ? `${ratingAverage.toFixed(1)} · ${ratingCount} rating${ratingCount === 1 ? '' : 's'}`
+                            : 'No ratings yet'}
+                    </span>
+                </div>
+
+                {post.isOwner ? (
+                    <p className="recipe-rating-mine">You can't rate your own recipe.</p>
+                ) : (
+                    <div className="recipe-rating-mine">
+                        <span>Your rating:</span>
+                        <StarRating
+                            value={post.myRating ?? null}
+                            onChange={handleRate}
+                            disabled={ratingSaving}
+                            readOnly={post.myRating != null}
+                        />
+                        {post.myRating && (
+                            <button type="button" onClick={() => handleRate(null)} disabled={ratingSaving}>
+                                Remove rating
+                            </button>
+                        )}
+                    </div>
+                )}
+                {ratingError && <p className="recipe-rating-error">{ratingError}</p>}
+            </div>
 
             {post.image?.contentType && (
                 <img

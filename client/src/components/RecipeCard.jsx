@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const MAX_STARS = 5;
 const formatCount = new Intl.NumberFormat('en', { notation: 'compact' }).format;
 
-function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
+function RecipeCard({ id, title, author, hasImage, rating = 0, ratingCount, likes, onDelete, onSaveRecipe, isSaved, isOwner}) {
   const filledStars = Math.round(rating);
 
   const navigate = useNavigate();
@@ -27,8 +27,7 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSa
 
       {/* Modifyed by Satvik */}
       <p className="recipe-card-title">
-        <strong>{title}</strong> 
-        by {author?.username || 'Unknown'}
+        <strong>{title}</strong> by {author?.username || 'Unknown'}
       </p>
 
       <div className="recipe-card-meta">
@@ -37,6 +36,11 @@ function RecipeCard({ id, title, author, hasImage, rating, likes, onDelete, onSa
             <span key={i} className={i < filledStars ? 'star filled' : 'star'}>★</span>
           ))}
         </span>
+        {ratingCount !== undefined && (
+          <span className="recipe-card-rating-count">
+            {ratingCount > 0 ? `${rating.toFixed(1)} (${ratingCount})` : 'No ratings'}
+          </span>
+        )}
         <span className="recipe-card-likes">👍 {formatCount(likes)}</span>
       </div>
 
