@@ -8,21 +8,37 @@ function EditProfilePage() {
 
     const [displayName, setDisplayName] = useState(user.displayName || '');
     const [bio, setBio] = useState(user.bio || '');
-    const [profilePicUrl, setProfilePicUrl] = useState(user.profilePicUrl || '');
+
+    const [profilePic, setProfilePic] = useState(null);
 
     const handleSubmit = async (page) => {
         page.preventDefault();
-        const response = await fetch('http://localhost:5000/api/auth/me', {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ displayName, bio, profilePicUrl }),
-        });
+        try {
+            const formData = new FormData();
+            formData.append('displayName', displayName.trim());
+            formData.append('bio', bio.trim());
+            if (profilePic) {
+                formData.append('profilePic', profilePic);
+            }
 
-        const data = await response.json();
+            const response = await fetch('http://localhost:5000/api/auth/me', {
+                method: 'PUT',
+                credentials: 'include',
+                body: formData,
+            });
 
-        setUser(data.user);
-        navigate('/profile');
+            const data = await response.json().catch(() => ({}));
+
+            if (!response.ok) {
+            throw new Error(data.error || `Server responded with ${response.status}`);
+            }
+
+            setUser(data.user || data);
+            navigate('/profile');
+        } catch (err) {
+            console.error('Failed to update profile:', err);
+            // setError(err.message);
+        }
     };
 
     return (
@@ -30,29 +46,29 @@ function EditProfilePage() {
             <h1>Edit Profile</h1>
 
             <form onSubmit={handleSubmit}>
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Display name"
+                        value={displayName}
+                        onChange={(change) => setDisplayName(change.target.value)}
+                    />
+                </div>
+
+                <div>
+                    <input
+                        type="text"
+                        placeholder="Bio"
+                        value={bio}
+                        onChange={(change) => setBio(change.target.value)}
+                    />
+                </div>
+                <label className="form-label">Profile Picture</label>
                 <input
-                    type="text"
-                    placeholder="Display name"
-                    value={displayName}
-                    onChange={(change) => setDisplayName(change.target.value)}
-                />
-                <button type="submit">Save</button>
-            </form>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Bio"
-                    value={bio}
-                    onChange={(change) => setBio(change.target.value)}
-                />
-                <button type="submit">Save</button>
-            </form>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Profile URL"
-                    value={profilePicUrl}
-                    onChange={(change) => setProfilePicUrl(change.target.value)}
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setProfilePic(e.target.files[0] || null)}
+                    className="form-input"
                 />
                 <button type="submit">Save</button>
             </form>

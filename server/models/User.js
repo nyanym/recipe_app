@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 
-
-// example
 const userSchema = new mongoose.Schema(
   {
     username: {
@@ -30,9 +28,9 @@ const userSchema = new mongoose.Schema(
       maxlength: 500,
       default: '',
     },
-    profilePicUrl: {
-      type: String,
-      default: '',
+    profilePic: {
+      data: Buffer,
+      contentType: String,
     },
     ratedPosts: [
       {
