@@ -1,7 +1,23 @@
 const express = require('express');
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const multer = require('multer');
 const router = express.Router();
+
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+});
+
+const formatUser = (user) => ({
+  id: user._id,
+  username: user.username,
+  displayName: user.displayName || '',
+  bio: user.bio || '',
+  profilePic: user.profilePic?.contentType
+    ? { contentType: user.profilePic.contentType }
+    : null,
+});
 
 //Sign up a new account
 router.post("/signup", async (req, res) => {
@@ -49,7 +65,7 @@ router.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
 
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ username }).select("-profilePic.data");
 
         if (!user) {
             return res.status(401).json({message: "Invalid username or password"});
@@ -65,12 +81,7 @@ router.post("/login", async (req, res) => {
 
         res.status(200).json({
             message: "Login successful",
-            user: {
-                username: user.username,
-                displayName: user.displayName,
-                bio: user.bio,
-                profilePicUrl: user.profilePicUrl,
-            }     
+            user: formatUser(user)
         });
 
     } catch (error) {
@@ -88,7 +99,8 @@ router.get("/me", async (req, res) => {
             });
         }
 
-        const user = await User.findById(req.session.userId).select("username displayName bio profilePicUrl");
+        const user = await User.findById(req.session.userId)
+            .select("username displayName bio profilePic.contentType");
 
         if (!user) {
             return res.status(401).json({
@@ -97,13 +109,7 @@ router.get("/me", async (req, res) => {
         }
 
         res.status(200).json({
-            user: {
-                username: user.username,
-                id: user._id,
-                displayName: user.displayName,
-                bio: user.bio,
-                profilePicUrl: user.profilePicUrl,
-            }
+            user: formatUser(user),
         });
     }
     catch(err){
@@ -133,7 +139,7 @@ router.post('/logout', (req, res) => {
 });
 
 // When you update profile info
-router.put("/me", async (req, res) => {
+router.put("/me", upload.single('profilePic'), async (req, res) => {
     try {
         if (!req.session.userId) {
             return res.status(401).json({
@@ -141,29 +147,55 @@ router.put("/me", async (req, res) => {
             });
         }
 
-        const { displayName, bio, profilePicUrl } = req.body; 
-        
-        const user = await User.findByIdAndUpdate(
-            req.session.userId,
-            { displayName, bio, profilePicUrl },
-            { new: true, runValidators: true }
-        );
+        const { displayName, bio } = req.body; 
+        const updates = {};
 
-        res.status(200).json({
-            user: {
-                username: user.username,
-                id: user._id,
-                displayName: user.displayName,
-                bio: user.bio,
-                profilePicUrl: user.profilePicUrl,
-            }
-        });
+        if (displayName !== undefined) updates.displayName = displayName.trim();
+        if (bio !== undefined) updates.bio = bio.trim();
+        
+        if (req.file) {
+            updates.profilePic = {
+                data: req.file.buffer,
+                contentType: req.file.mimetype,
+            };
+        }
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.session.userId,
+            { $set: updates },
+            { new: true, runValidators: true }
+        ).select('-password -profilePic.data');
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json({ user: updatedUser });
     }
     catch(err){
-        res.status(500).json({
-            message: "Server error"
-        });
+        console.error('Error updating profile:', err);
+            if (err.name === 'ValidationError') {
+            return res.status(400).json({ error: err.message });
+        }
+        res.status(500).json({ error: 'Server error' });
     }
+});
+
+// profile-pic
+router.get('/:id/profile-pic', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select('profilePic');
+
+    if (!user || !user.profilePic || !user.profilePic.data) {
+      return res.status(404).send('Image not found');
+    }
+
+    res.set('Content-Type', user.profilePic.contentType);
+    res.send(user.profilePic.data);
+  } catch (err) {
+    console.error('Error serving profile picture:', err);
+    res.status(500).send('Server error');
+  }
 });
 
 module.exports = router;

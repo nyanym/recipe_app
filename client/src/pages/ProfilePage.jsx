@@ -23,7 +23,12 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
 
       <div className="profile-main">
         <div className="profile-avatar">
-          {user.profilePicUrl && <img src={user.profilePicUrl} alt={user.username} />}
+          {user?.profilePic?.contentType && (
+            <img
+              src={`http://localhost:5000/api/auth/${user._id || user.id}/profile-pic`}
+              alt={user.username}
+            />
+          )}
         </div>
 
         <h2>{user.displayName || user.username}</h2>
