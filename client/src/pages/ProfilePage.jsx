@@ -3,18 +3,10 @@ import RecipeCard from '../components/RecipeCard';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
-// temp info until we can read actual recipes users made
-const sampleRecipes = [
-  { id: 1, title: 'Apple', imageUrl: null, rating: 5, likes: 120 },
-  { id: 2, title: 'Banana', imageUrl: null, rating: 5, likes: 87 },
-  { id: 3, title: 'Orange', imageUrl: null, rating: 3, likes: 45 },
-  { id: 4, title: 'Pear', imageUrl: null, rating: 2, likes: 230 },
-];
-
 function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const recipes = sampleRecipes;
+  const recipes = posts.filter(post => post.isOwner);
 
   const savedPosts = posts.filter((post) => post.isSaved);
 
@@ -38,15 +30,21 @@ function ProfilePage({ posts = [], loading, onDeletePost, onSavePost }) {
 
         <h3 className="profile-section-title">Recipes</h3>
         <div className="profile-recipes">
-          {recipes.map((recipe) => (
+          {recipes.map((post) => (
             <RecipeCard
-              key={recipe.id}
-              id={recipe.id}
-              title={recipe.title}
-              author={user.username}
-              imageUrl={recipe.imageUrl}
-              rating={recipe.rating}
-              likes={recipe.likes}
+              key={post._id}
+              id={post._id}
+              title={post.title}
+              content={post.content}
+              hasImage={Boolean(post.image?.contentType)}
+              author={post.author}
+              rating={post.rating}
+              ratingCount={post.ratingCount}
+              likes={post.likes}
+              isOwner={post.isOwner}
+              isSaved={post.isSaved}
+              onDelete={onDeletePost}
+              onSaveRecipe={onSavePost}
             />
           ))}
         </div>
